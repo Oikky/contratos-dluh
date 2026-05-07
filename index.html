@@ -465,12 +465,17 @@ input[type=range]::-webkit-slider-thumb:hover { box-shadow: 0 1px 10px rgba(192,
       <!-- PANEL: CONFIG -->
       <div class="sidebar-panel" id="panel-config">
 
-        <!-- SYNC BOX: GitHub Pages não tem servidor, explicamos -->
+        <!-- SYNC BOX: JSONBin.io -->
         <div class="config-sync-box">
-          <p>⚠️ <strong>GitHub Pages</strong> não salva dados no servidor. Suas configurações ficam salvas <strong>neste dispositivo</strong>. Para usar em outro dispositivo ou compartilhar, exporte e importe o JSON de configuração.</p>
+          <p>☁️ <strong>Sincronização na nuvem</strong> ativa — as configurações são compartilhadas com todos que acessam o site.</p>
+          <div id="jsonbin-status" style="font-size:0.7rem;color:var(--muted);margin-bottom:8px;min-height:16px;"></div>
           <div class="sync-buttons">
-            <button class="btn btn-outline btn-sm" onclick="exportarConfig()" style="flex:1">⬇️ Exportar config</button>
-            <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-file').click()" style="flex:1">⬆️ Importar config</button>
+            <button class="btn btn-outline btn-sm" onclick="jsonbinPush()" style="flex:1">☁️ Salvar na nuvem</button>
+            <button class="btn btn-outline btn-sm" onclick="jsonbinPull()" style="flex:1">⬇️ Carregar da nuvem</button>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;">
+            <button class="btn btn-outline btn-sm" onclick="exportarConfig()" style="flex:1;font-size:0.7rem">💾 Exportar JSON</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-file').click()" style="flex:1;font-size:0.7rem">📂 Importar JSON</button>
             <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarConfig(event)">
           </div>
         </div>
@@ -648,6 +653,8 @@ document.addEventListener('DOMContentLoaded', () => {
   fillConfigForm(cfg);
   renderClausulas(cls);
   if (logoDataUrl) applyLogo(logoDataUrl);
+  preencherJsonbinInputs();
+  autoSyncOnLoad(); // tenta carregar da nuvem se tiver credenciais
 });
 
 // ═══════════════════════════════════════════
@@ -660,6 +667,7 @@ function showSidebarPanel(id) {
   const stab = document.getElementById('stab-' + id);
   if (stab) stab.classList.add('active');
   document.getElementById('btn-salvar-cl').style.display = id === 'clausulas' ? 'flex' : 'none';
+  if (id === 'config') preencherJsonbinInputs();
 }
 
 let currentMobilePanel = 'dados';
@@ -772,7 +780,83 @@ function updateLogoSizeLabel() {
 }
 
 // ═══════════════════════════════════════════
-//  EXPORT / IMPORT CONFIG (para GitHub Pages)
+//  JSONBIN.IO — SINCRONIZAÇÃO NA NUVEM
+// ═══════════════════════════════════════════
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
+const JSONBIN_KEY  = '$2a$10$a4WtOJJY1ngCg7kinYmsz.92hLG4Pgsj5nIG0Lv52nJntdCOP.YeC';
+const JSONBIN_BIN  = '69fd00b5adc21f119a6b08a9';
+
+function jsonbinStatus(msg, cor) {
+  const el = document.getElementById('jsonbin-status');
+  if (!el) return;
+  el.textContent = msg; el.style.color = cor || 'var(--muted)';
+}
+function preencherJsonbinInputs() {}
+
+// Salvar na nuvem
+async function jsonbinPush() {
+  const { cfg, cls } = loadState();
+  const payload = { cfg, cls, logo: logoDataUrl };
+  jsonbinStatus('Salvando…', 'var(--brand)');
+  try {
+    const res = await fetch(`${JSONBIN_BASE}/b/${JSONBIN_BIN}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || res.status);
+    jsonbinStatus('✓ Salvo na nuvem! ' + new Date().toLocaleTimeString('pt-BR'), '#2c8a4a');
+    showToast('☁️ Configurações salvas na nuvem!');
+  } catch(err) {
+    jsonbinStatus('Erro: ' + err.message, '#c0504a');
+    showToast('Erro ao salvar: ' + err.message);
+  }
+}
+
+// Carregar da nuvem
+async function jsonbinPull() {
+  jsonbinStatus('Carregando…', 'var(--brand)');
+  try {
+    const res = await fetch(`${JSONBIN_BASE}/b/${JSONBIN_BIN}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || res.status);
+    const payload = data.record;
+    if (payload.cfg) { saveConfig(payload.cfg); applyConfig(payload.cfg); fillConfigForm(payload.cfg); }
+    if (payload.cls) { saveClausulas(payload.cls); renderClausulas(payload.cls); }
+    if (payload.logo) { logoDataUrl = payload.logo; saveLogo(logoDataUrl); applyLogo(logoDataUrl); }
+    else { logoDataUrl = null; saveLogo(null); removerLogo(); }
+    jsonbinStatus('✓ Carregado! ' + new Date().toLocaleTimeString('pt-BR'), '#2c8a4a');
+    showToast('☁️ Configurações carregadas da nuvem!');
+  } catch(err) {
+    jsonbinStatus('Erro: ' + err.message, '#c0504a');
+    showToast('Erro ao carregar: ' + err.message);
+  }
+}
+
+// Auto-carregar da nuvem ao abrir o site
+async function autoSyncOnLoad() {
+  const apiKey = JSONBIN_KEY;
+  const binId  = JSONBIN_BIN;
+  if (!apiKey || !binId) return;
+  try {
+    const res = await fetch(`${JSONBIN_BASE}/b/${JSONBIN_BIN}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const payload = data.record;
+    if (payload.cfg) { saveConfig(payload.cfg); applyConfig(payload.cfg); fillConfigForm(payload.cfg); }
+    if (payload.cls) { saveClausulas(payload.cls); renderClausulas(payload.cls); }
+    if (payload.logo) { logoDataUrl = payload.logo; saveLogo(logoDataUrl); applyLogo(logoDataUrl); }
+    jsonbinStatus('✓ Sincronizado automaticamente', '#2c8a4a');
+  } catch(e) { /* falha silenciosa — usa localStorage */ }
+}
+
+// ═══════════════════════════════════════════
+//  EXPORT / IMPORT LOCAL (backup)
 // ═══════════════════════════════════════════
 function exportarConfig() {
   const { cfg, cls } = loadState();
