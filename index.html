@@ -5,478 +5,590 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="page-title">D'Luh Festas – Gerador de Contrato</title>
 <link rel="icon" id="favicon" href="" type="image/png">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════ RESET & VARS ═══════════════ */
 :root {
   --brand: #c0506a;
   --brand-dark: #9e3a52;
-  --brand-light: #f9eaed;
-  --brand-ultra: #fdf4f6;
+  --brand-light: rgba(192,80,106,.12);
+  --brand-ultra: rgba(192,80,106,.05);
   --ink: #2c2c2c;
   --muted: #888;
   --border: #e8e0e2;
   --white: #ffffff;
-  --surface: #f7f3f4;
-  --radius: 12px;
-  --shadow: 0 4px 20px rgba(192,80,106,.1);
+  --surface: #f5f0f1;
+  --sidebar-w: 360px;
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(192,80,106,.1);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; }
+html, body { height: 100%; }
+body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); overflow: hidden; }
 
-.nav-bar {
-  background: var(--white);
-  border-bottom: 2px solid var(--border);
-  position: sticky; top: 0; z-index: 50;
-  display: flex; align-items: stretch;
-  box-shadow: 0 2px 12px rgba(0,0,0,.06);
-}
-.nav-logo {
-  display: flex; align-items: center; gap: 12px;
-  padding: 0 24px;
-  border-right: 1px solid var(--border);
-  min-width: 220px;
-}
-.nav-logo-img {
-  width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
-  background: var(--brand); display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 700; font-size: 16px; flex-shrink: 0;
+/* ═══════════════ LAYOUT ═══════════════ */
+.app {
+  display: flex;
+  height: 100vh;
   overflow: hidden;
 }
-.nav-logo-img img { width: 100%; height: 100%; object-fit: cover; display: none; }
-.nav-logo-text h1 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--brand); line-height: 1.2; }
-.nav-logo-text p { font-size: 0.72rem; color: var(--muted); }
-.nav-tabs { display: flex; flex: 1; }
-.nav-tab {
-  display: flex; align-items: center; gap: 7px;
-  padding: 0 22px;
-  font-size: 0.86rem; font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
-  transition: all .2s;
-  user-select: none;
-  white-space: nowrap;
-}
-.nav-tab:hover { color: var(--brand); }
-.nav-tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
-.nav-tab .tab-icon { font-size: 1rem; }
 
-.page { display: none; }
-.page.active { display: block; }
-.container { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
-
-.card {
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   background: var(--white);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  margin-bottom: 20px;
+  border-right: 1.5px solid var(--border);
+  height: 100vh;
   overflow: hidden;
+  position: relative;
+  z-index: 10;
+  box-shadow: 4px 0 20px rgba(0,0,0,.06);
 }
-.card-header {
-  padding: 14px 22px;
-  display: flex; align-items: center; gap: 10px;
+
+.sidebar-header {
+  padding: 18px 20px 14px;
   border-bottom: 1px solid var(--border);
-  background: var(--brand-ultra);
+  background: var(--white);
+  flex-shrink: 0;
 }
-.card-header .icon { font-size: 1.1rem; }
-.card-header h3 { font-size: 0.92rem; font-weight: 600; color: var(--brand-dark); }
-.card-header p { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
-.card-body { padding: 22px; }
+.brand-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.brand-logo {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--brand); display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 15px; flex-shrink: 0; overflow: hidden;
+}
+.brand-logo img { width: 100%; height: 100%; object-fit: cover; display: none; }
+.brand-logo-letter { }
+.brand-name { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--brand); line-height: 1.2; }
+.brand-sub  { font-size: 0.7rem; color: var(--muted); }
 
-.row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
-.row:last-child { margin-bottom: 0; }
-.field { display: flex; flex-direction: column; flex: 1; min-width: 180px; }
-.field.full { flex: 1 1 100%; min-width: 100%; }
-.field.half { flex: 1 1 calc(50% - 7px); }
-.field.third { flex: 1 1 calc(33% - 10px); }
-label {
-  font-size: 0.72rem; font-weight: 600; color: var(--muted);
-  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;
+/* Sidebar internal tabs */
+.sidebar-tabs {
+  display: flex; gap: 4px;
 }
-input[type=text], input[type=number], input[type=date], input[type=time],
-input[type=email], select, textarea {
-  border: 1.5px solid var(--border);
-  border-radius: 8px; padding: 10px 13px;
-  font-size: 0.9rem; color: var(--ink);
-  font-family: inherit;
-  background: #fafafa;
-  transition: border .18s, background .18s, box-shadow .18s;
+.sidebar-tab {
+  flex: 1; padding: 7px 6px; border-radius: 7px;
+  font-size: 0.75rem; font-weight: 600; text-align: center;
+  cursor: pointer; transition: all .18s;
+  color: var(--muted); background: var(--surface);
+  border: 1.5px solid transparent;
+  user-select: none;
+}
+.sidebar-tab:hover { color: var(--brand); }
+.sidebar-tab.active {
+  background: var(--brand); color: #fff;
+  border-color: var(--brand-dark);
+  box-shadow: 0 2px 8px rgba(192,80,106,.3);
+}
+
+/* Sidebar scrollable body */
+.sidebar-body {
+  flex: 1; overflow-y: auto; padding: 16px 18px 20px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+.sidebar-body::-webkit-scrollbar { width: 4px; }
+.sidebar-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.sidebar-panel { display: none; }
+.sidebar-panel.active { display: block; }
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--white);
+  flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+/* ── PREVIEW PANE ── */
+.preview-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #2a2a2e;
+  overflow: hidden;
+  position: relative;
+}
+.preview-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px;
+  background: #1e1e22;
+  border-bottom: 1px solid #3a3a40;
+  flex-shrink: 0;
+}
+.preview-topbar-left {
+  display: flex; align-items: center; gap: 10px;
+}
+.preview-topbar h2 {
+  font-size: 0.82rem; font-weight: 600; color: #ccc;
+  letter-spacing: .3px;
+}
+.preview-badge {
+  font-size: 0.68rem; padding: 2px 8px; border-radius: 20px;
+  background: rgba(192,80,106,.2); color: #e88fa0; font-weight: 600;
+}
+.preview-topbar-right {
+  display: flex; align-items: center; gap: 8px;
+}
+.preview-wrap {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  overflow: auto;
+  position: relative;
+}
+.preview-shadow-paper {
+  width: 100%; max-width: 680px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  overflow: hidden;
+  min-height: 400px;
+}
+#preview-iframe {
   width: 100%;
+  height: 100%;
+  min-height: 900px;
+  border: none;
+  display: block;
 }
-input:focus, select:focus, textarea:focus {
+.preview-placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 400px; gap: 12px;
+  color: #888; font-size: 0.88rem; padding: 40px;
+  text-align: center;
+}
+.preview-placeholder .big-icon { font-size: 3rem; opacity: .4; }
+.preview-placeholder p { opacity: .6; max-width: 240px; line-height: 1.6; }
+
+/* ═══════════════ FORM ELEMENTS ═══════════════ */
+.form-section {
+  margin-bottom: 18px;
+}
+.form-section-title {
+  font-size: 0.68rem; font-weight: 700; color: var(--brand);
+  text-transform: uppercase; letter-spacing: .8px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.form-section-title::after {
+  content: ''; flex: 1; height: 1px; background: var(--brand-light);
+}
+.field { margin-bottom: 10px; }
+.field label {
+  display: block; font-size: 0.68rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px;
+}
+.field input, .field select, .field textarea {
+  width: 100%; border: 1.5px solid var(--border);
+  border-radius: 7px; padding: 8px 11px;
+  font-size: 0.85rem; color: var(--ink); font-family: inherit;
+  background: #fafafa;
+  transition: border .15s, box-shadow .15s, background .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
   outline: none; border-color: var(--brand);
   background: var(--white); box-shadow: 0 0 0 3px rgba(192,80,106,.1);
 }
-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.field textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
+.field-row { display: flex; gap: 8px; }
+.field-row .field { flex: 1; }
+.field-hint { font-size: 0.68rem; color: var(--muted); margin-top: 3px; }
 
-.valor-split { display: flex; gap: 12px; margin-top: 12px; }
+/* Valor boxes */
+.valor-row {
+  display: flex; gap: 8px; margin-top: 8px;
+}
 .valor-box {
   flex: 1; background: var(--brand-light);
-  border-radius: 8px; padding: 12px 16px;
-  border: 1px solid #e8b8c4;
+  border-radius: 8px; padding: 10px 12px;
+  border: 1px solid rgba(192,80,106,.2);
 }
-.valor-box span { font-size: 0.72rem; color: var(--brand-dark); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
-.valor-box strong { display: block; font-size: 1.1rem; color: var(--brand); margin-top: 3px; }
+.valor-box span { font-size: 0.65rem; color: var(--brand-dark); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .3px; }
+.valor-box strong { display: block; font-size: 1rem; color: var(--brand); margin-top: 2px; }
 
-.btn-primary {
-  background: var(--brand); color: #fff;
-  border: none; border-radius: 10px;
-  padding: 14px 28px; font-size: 0.95rem; font-weight: 600;
-  cursor: pointer; font-family: inherit;
-  transition: background .2s, transform .12s, box-shadow .2s;
-  display: inline-flex; align-items: center; gap: 8px;
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border: none; border-radius: 8px; padding: 10px 16px;
+  font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all .18s; text-decoration: none; white-space: nowrap;
 }
-.btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(192,80,106,.3); }
-.btn-primary:active { transform: translateY(0); }
-.btn-primary.full-width { width: 100%; justify-content: center; padding: 16px; font-size: 1rem; }
-.btn-secondary {
-  background: var(--surface); color: var(--ink);
-  border: 1.5px solid var(--border); border-radius: 10px;
-  padding: 12px 20px; font-size: 0.9rem; font-weight: 500;
-  cursor: pointer; font-family: inherit;
-  transition: all .18s;
-}
-.btn-secondary:hover { border-color: var(--brand); color: var(--brand); }
+.btn-brand { background: var(--brand); color: #fff; }
+.btn-brand:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(192,80,106,.35); }
+.btn-brand:active { transform: none; }
+.btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--brand); color: var(--brand); }
+.btn-ghost { background: rgba(255,255,255,.08); color: #ccc; border: 1px solid #3a3a40; }
+.btn-ghost:hover { background: rgba(255,255,255,.14); color: #fff; }
+.btn-full { width: 100%; }
+.btn-sm { padding: 7px 12px; font-size: 0.78rem; }
 
+/* Upload area */
 .upload-area {
-  border: 2px dashed var(--border);
-  border-radius: 10px; padding: 28px 20px;
-  text-align: center; cursor: pointer;
-  transition: all .2s; position: relative;
-  background: var(--surface);
+  border: 2px dashed var(--border); border-radius: 8px;
+  padding: 20px 14px; text-align: center; cursor: pointer;
+  transition: all .2s; position: relative; background: var(--surface);
 }
 .upload-area:hover { border-color: var(--brand); background: var(--brand-ultra); }
 .upload-area input[type=file] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  border: none; padding: 0; background: none;
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  width: 100%; height: 100%; border: none; padding: 0; background: none;
 }
-.upload-area .upload-icon { font-size: 2.2rem; margin-bottom: 8px; }
-.upload-area p { font-size: 0.88rem; color: var(--muted); }
-.upload-area strong { font-size: 0.9rem; color: var(--ink); display: block; margin-bottom: 4px; }
-.preview-logo {
-  width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
-  border: 3px solid var(--brand); margin: 0 auto 10px; display: none;
-}
+.upload-area .up-icon { font-size: 1.8rem; margin-bottom: 6px; }
+.upload-area strong { font-size: 0.82rem; color: var(--ink); display: block; margin-bottom: 2px; }
+.upload-area p { font-size: 0.75rem; color: var(--muted); }
 
+/* Cláusulas */
 .clausula-item {
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 14px 16px; margin-bottom: 10px;
-  background: var(--surface);
-  transition: border-color .2s;
+  border: 1.5px solid var(--border); border-radius: 7px;
+  padding: 10px 12px; margin-bottom: 8px; background: var(--surface);
 }
 .clausula-item:hover { border-color: var(--brand); }
-.clausula-label {
-  font-size: 0.75rem; font-weight: 700; color: var(--brand);
-  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
-  display: flex; justify-content: space-between; align-items: center;
+.clausula-num {
+  font-size: 0.67rem; font-weight: 700; color: var(--brand);
+  text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px;
 }
-.clausula-item textarea { min-height: 70px; background: var(--white); font-size: 0.85rem; }
+.clausula-item textarea { min-height: 60px; font-size: 0.78rem; }
 
-.section-divider {
-  display: flex; align-items: center; gap: 12px; margin: 24px 0 16px;
-}
-.section-divider span {
-  font-size: 0.72rem; font-weight: 700; color: var(--brand);
-  text-transform: uppercase; letter-spacing: .8px; white-space: nowrap;
-}
-.section-divider::before, .section-divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
-}
-
-.save-notice {
-  position: fixed; bottom: 24px; right: 24px;
-  background: #2c8a4a; color: #fff;
-  padding: 12px 20px; border-radius: 30px;
-  font-size: 0.85rem; font-weight: 600;
-  box-shadow: 0 4px 20px rgba(0,0,0,.2);
-  transform: translateY(80px); opacity: 0;
-  transition: all .3s cubic-bezier(.34,1.56,.64,1);
-  pointer-events: none; z-index: 200;
-}
-.save-notice.show { transform: translateY(0); opacity: 1; }
-
-.hint { font-size: 0.75rem; color: var(--muted); margin-top: 5px; }
-
-.color-row { display: flex; align-items: center; gap: 12px; }
+/* Color picker */
+.color-row { display: flex; align-items: center; gap: 8px; }
 .color-row input[type=color] {
-  width: 44px; height: 36px; padding: 2px; border-radius: 6px;
-  border: 1.5px solid var(--border); cursor: pointer;
-  background: none; flex-shrink: 0;
+  width: 38px; height: 32px; padding: 2px; border-radius: 6px;
+  border: 1.5px solid var(--border); cursor: pointer; background: none; flex-shrink: 0;
 }
 .color-row input[type=text] { flex: 1; }
 
-@media (max-width: 600px) {
-  .field.third, .field.half { flex: 1 1 100%; }
-  .nav-logo { min-width: unset; padding: 0 14px; }
-  .nav-tab { padding: 0 14px; font-size: 0.8rem; }
-  .nav-tab .tab-icon { display: none; }
-  .valor-split { flex-direction: column; }
+/* Hint banner */
+.hint-banner {
+  background: var(--brand-light); border-radius: 7px;
+  padding: 10px 13px; margin-bottom: 14px;
+  font-size: 0.75rem; color: var(--brand-dark); line-height: 1.6;
+}
+.hint-banner code { font-size: 0.72rem; background: rgba(192,80,106,.1); border-radius: 3px; padding: 1px 4px; }
+
+/* Save toast */
+.toast {
+  position: fixed; bottom: 20px; right: 20px;
+  background: #2c8a4a; color: #fff;
+  padding: 10px 18px; border-radius: 25px;
+  font-size: 0.82rem; font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+  transform: translateY(60px); opacity: 0;
+  transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none; z-index: 999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Logo preview */
+.logo-preview-circle {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--brand); display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.6rem; font-weight: 700; margin: 0 auto 10px; overflow: hidden;
+}
+.logo-preview-circle img { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+/* ═══════════════ MOBILE LAYOUT ═══════════════ */
+/* On mobile: stack vertically with top tabs */
+.mobile-tabs {
+  display: none;
+  background: var(--white);
+  border-bottom: 2px solid var(--border);
+  padding: 0 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mobile-tabs::-webkit-scrollbar { display: none; }
+.mobile-tab {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 12px 16px; font-size: 0.8rem; font-weight: 600;
+  color: var(--muted); cursor: pointer; white-space: nowrap;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: all .18s;
+}
+.mobile-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+.mobile-brand {
+  display: none;
+  align-items: center; gap: 10px;
+  padding: 12px 16px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+@media (max-width: 768px) {
+  body { overflow: auto; }
+  .app { flex-direction: column; height: auto; overflow: visible; }
+
+  .mobile-brand { display: flex; }
+  .mobile-tabs { display: flex; }
+
+  .sidebar {
+    width: 100%; height: auto; overflow: visible;
+    border-right: none; border-bottom: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .sidebar-header { display: none; }
+  .sidebar-body { overflow: visible; max-height: none; padding: 14px 16px 16px; }
+  .sidebar-panel { display: none !important; }
+  .sidebar-panel.active { display: block !important; }
+  .sidebar-footer { position: sticky; bottom: 0; z-index: 5; }
+
+  .preview-pane { min-height: 60vh; }
+  .preview-topbar { display: none; }
+  .preview-wrap { padding: 12px; background: #333; }
+  .preview-shadow-paper { max-width: 100%; }
+  #preview-iframe { min-height: 600px; }
+}
+
+@media (min-width: 769px) {
+  .mobile-brand, .mobile-tabs { display: none !important; }
 }
 </style>
 </head>
 <body>
 
-<nav class="nav-bar">
-  <div class="nav-logo">
-    <div class="nav-logo-img" id="nav-logo-circle">
-      <span id="nav-logo-letter">D</span>
-      <img id="nav-logo-img-el" alt="logo">
-    </div>
-    <div class="nav-logo-text">
-      <h1 id="nav-titulo">D'Luh Festas</h1>
-      <p id="nav-subtitulo">Gerador de Contrato de Buffet</p>
-    </div>
+<!-- Mobile top brand bar -->
+<div class="mobile-brand">
+  <div class="brand-logo" id="mob-logo">
+    <span class="brand-logo-letter" id="mob-logo-letter">D</span>
+    <img id="mob-logo-img" alt="">
   </div>
-  <div class="nav-tabs">
-    <div class="nav-tab active" onclick="showPage('contrato')" id="tab-contrato">
-      <span class="tab-icon">📄</span> Contrato
-    </div>
-    <div class="nav-tab" onclick="showPage('clausulas')" id="tab-clausulas">
-      <span class="tab-icon">📝</span> Cláusulas
-    </div>
-    <div class="nav-tab" onclick="showPage('config')" id="tab-config">
-      <span class="tab-icon">⚙️</span> Configurações
-    </div>
+  <div>
+    <div class="brand-name" id="mob-titulo">D'Luh Festas</div>
+    <div class="brand-sub" id="mob-subtitulo">Gerador de Contrato de Buffet</div>
   </div>
-</nav>
+</div>
 
-<!-- PAGE 1 – CONTRATO -->
-<div class="page active" id="page-contrato">
-<div class="container">
+<!-- Mobile tab bar -->
+<div class="mobile-tabs" id="mobile-tabs">
+  <div class="mobile-tab active" onclick="showMobilePanel('dados')" id="mtab-dados">📄 Contrato</div>
+  <div class="mobile-tab" onclick="showMobilePanel('clausulas')" id="mtab-clausulas">📝 Cláusulas</div>
+  <div class="mobile-tab" onclick="showMobilePanel('config')" id="mtab-config">⚙️ Config</div>
+  <div class="mobile-tab" onclick="showMobilePanel('preview')" id="mtab-preview">👁️ Prévia</div>
+</div>
 
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">👤</span>
-      <div><h3>Dados da Contratante</h3><p>Quem está contratando o serviço</p></div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="field full"><label>Nome completo</label><input type="text" id="nome" placeholder="Ex: Maria da Silva Oliveira"></div>
-      </div>
-      <div class="row">
-        <div class="field half"><label>CPF</label><input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14"></div>
-        <div class="field half"><label>RG</label><input type="text" id="rg" placeholder="Opcional"></div>
-      </div>
-      <div class="row">
-        <div class="field full"><label>Endereço (rua e número)</label><input type="text" id="endereco" placeholder="Ex: Rua das Flores, 100"></div>
-      </div>
-      <div class="row">
-        <div class="field third"><label>Bairro</label><input type="text" id="bairro" placeholder="Ex: Centro"></div>
-        <div class="field third"><label>Cidade</label><input type="text" id="cidade" placeholder="Ex: Montes Claros"></div>
-        <div class="field third"><label>Estado (UF)</label><input type="text" id="estado" placeholder="MG" maxlength="2"></div>
-      </div>
-    </div>
-  </div>
+<div class="app">
 
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">🎉</span>
-      <div><h3>Dados do Evento</h3><p>Informações sobre o dia da festa</p></div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="field half"><label>Data do evento</label><input type="date" id="data_evento"></div>
-        <div class="field half"><label>Local (salão)</label><input type="text" id="local" placeholder="Ex: Espaço Mágico"></div>
-      </div>
-      <div class="row">
-        <div class="field third"><label>Horário de início</label><input type="time" id="hora_inicio" value="11:00"></div>
-        <div class="field third"><label>Horário de término</label><input type="time" id="hora_fim" value="15:30"></div>
-        <div class="field third"><label>Chegada da equipe</label><input type="time" id="hora_chegada" value="09:00"></div>
-      </div>
-      <div class="row">
-        <div class="field half"><label>Tipo de evento</label><input type="text" id="tipo_evento" placeholder="Ex: Aniversário, Confraternização..."></div>
-        <div class="field half"><label>Número de convidados</label><input type="number" id="num_convidados" placeholder="Ex: 50" min="1"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">👨‍🍳</span>
-      <div><h3>Equipe</h3><p>Profissionais que trabalharão no evento</p></div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="field third"><label>Garçons</label><input type="number" id="garcons" value="2" min="0"></div>
-        <div class="field third"><label>Copeiros</label><input type="number" id="copeiros" value="1" min="0"></div>
-        <div class="field third"><label>Organizadores</label><input type="number" id="organizadores" value="1" min="0"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">💰</span>
-      <div><h3>Pagamento</h3><p>Valor e condições financeiras</p></div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="field full"><label>Valor total do contrato (R$)</label>
-          <input type="number" id="valor_total" placeholder="Ex: 3430.00" step="0.01" min="0" oninput="calcParcelas()">
+  <!-- ════════════════ SIDEBAR ════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-row">
+        <div class="brand-logo" id="sb-logo">
+          <span class="brand-logo-letter" id="sb-logo-letter">D</span>
+          <img id="sb-logo-img" alt="">
+        </div>
+        <div>
+          <div class="brand-name" id="sb-titulo">D'Luh Festas</div>
+          <div class="brand-sub" id="sb-subtitulo">Gerador de Contrato de Buffet</div>
         </div>
       </div>
-      <div class="valor-split" id="parcelas-display" style="display:none">
-        <div class="valor-box"><span>1ª Parcela (50%)</span><strong id="p1">R$ 0,00</strong></div>
-        <div class="valor-box"><span>2ª Parcela (50%)</span><strong id="p2">R$ 0,00</strong></div>
+      <div class="sidebar-tabs">
+        <div class="sidebar-tab active" onclick="showSidebarPanel('dados')" id="stab-dados">📄 Contrato</div>
+        <div class="sidebar-tab" onclick="showSidebarPanel('clausulas')" id="stab-clausulas">📝 Cláusulas</div>
+        <div class="sidebar-tab" onclick="showSidebarPanel('config')" id="stab-config">⚙️ Config</div>
       </div>
     </div>
-  </div>
 
-  <button class="btn-primary full-width" onclick="gerarContrato()">
-    <span>📄</span> Gerar e Baixar Contrato em PDF
-  </button>
-  <p style="text-align:center; font-size:0.78rem; color:var(--muted); margin-top:10px;">O PDF é gerado diretamente no seu navegador, sem enviar dados para a internet.</p>
+    <div class="sidebar-body">
 
-</div>
-</div>
+      <!-- PANEL: DADOS DO CONTRATO -->
+      <div class="sidebar-panel active" id="panel-dados">
 
-<!-- PAGE 2 – CLÁUSULAS -->
-<div class="page" id="page-clausulas">
-<div class="container">
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">📝</span>
-      <div><h3>Editor de Cláusulas</h3><p>Edite o texto de cada cláusula do contrato. Use {variáveis} para dados dinâmicos.</p></div>
-    </div>
-    <div class="card-body">
-      <div style="background:var(--brand-light); border-radius:8px; padding:12px 16px; margin-bottom:18px; font-size:0.82rem; color:var(--brand-dark);">
-        <strong>💡 Variáveis disponíveis:</strong><br>
-        <code style="font-size:0.8rem">{nome} {cpf} {rg} {endereco} {bairro} {cidade} {estado} {data_evento} {hora_inicio} {hora_fim} {hora_chegada} {local} {tipo_evento} {num_convidados} {garcons} {copeiros} {organizadores} {valor_total} {valor_extenso} {parcela}</code>
-      </div>
-      <div id="clausulas-container"></div>
-      <button class="btn-secondary" onclick="resetClausulas()" style="margin-top:8px">↺ Restaurar padrão</button>
-    </div>
-  </div>
-  <button class="btn-primary full-width" onclick="salvarClausulas()">
-    <span>💾</span> Salvar Cláusulas
-  </button>
-</div>
-</div>
-
-<!-- PAGE 3 – CONFIGURAÇÕES -->
-<div class="page" id="page-config">
-<div class="container">
-
-  <div class="section-divider"><span>Identidade Visual</span></div>
-
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">🎨</span>
-      <div><h3>Logo</h3><p>Aparece no cabeçalho do site e no PDF gerado</p></div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="field" style="align-items:center; flex:0 0 auto;">
-          <img id="preview-logo" class="preview-logo" alt="Logo preview">
-          <div id="logo-circle-preview" style="width:80px;height:80px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-size:2rem;font-weight:700;margin:0 auto 10px;">D</div>
+        <div class="form-section">
+          <div class="form-section-title">👤 Contratante</div>
+          <div class="field"><label>Nome completo</label><input type="text" id="nome" placeholder="Maria da Silva Oliveira" oninput="agendarPrevia()"></div>
+          <div class="field-row">
+            <div class="field"><label>CPF</label><input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" oninput="agendarPrevia()"></div>
+            <div class="field"><label>RG</label><input type="text" id="rg" placeholder="Opcional" oninput="agendarPrevia()"></div>
+          </div>
+          <div class="field"><label>Endereço</label><input type="text" id="endereco" placeholder="Rua das Flores, 100" oninput="agendarPrevia()"></div>
+          <div class="field-row">
+            <div class="field"><label>Bairro</label><input type="text" id="bairro" placeholder="Centro" oninput="agendarPrevia()"></div>
+            <div class="field"><label>Cidade</label><input type="text" id="cidade" placeholder="Montes Claros" oninput="agendarPrevia()"></div>
+            <div class="field" style="max-width:56px"><label>UF</label><input type="text" id="estado" placeholder="MG" maxlength="2" oninput="agendarPrevia()"></div>
+          </div>
         </div>
-        <div class="field" style="flex:1">
-          <div class="upload-area" id="upload-area">
+
+        <div class="form-section">
+          <div class="form-section-title">🎉 Evento</div>
+          <div class="field-row">
+            <div class="field"><label>Data</label><input type="date" id="data_evento" oninput="agendarPrevia()"></div>
+            <div class="field"><label>Local</label><input type="text" id="local" placeholder="Espaço Mágico" oninput="agendarPrevia()"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Início</label><input type="time" id="hora_inicio" value="11:00" oninput="agendarPrevia()"></div>
+            <div class="field"><label>Término</label><input type="time" id="hora_fim" value="15:30" oninput="agendarPrevia()"></div>
+            <div class="field"><label>Chegada equipe</label><input type="time" id="hora_chegada" value="09:00" oninput="agendarPrevia()"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Tipo de evento</label><input type="text" id="tipo_evento" placeholder="Aniversário" oninput="agendarPrevia()"></div>
+            <div class="field"><label>Nº convidados</label><input type="number" id="num_convidados" placeholder="50" min="1" oninput="agendarPrevia()"></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">👨‍🍳 Equipe</div>
+          <div class="field-row">
+            <div class="field"><label>Garçons</label><input type="number" id="garcons" value="2" min="0" oninput="agendarPrevia()"></div>
+            <div class="field"><label>Copeiros</label><input type="number" id="copeiros" value="1" min="0" oninput="agendarPrevia()"></div>
+            <div class="field"><label>Organizadores</label><input type="number" id="organizadores" value="1" min="0" oninput="agendarPrevia()"></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">💰 Pagamento</div>
+          <div class="field"><label>Valor total (R$)</label>
+            <input type="number" id="valor_total" placeholder="3430.00" step="0.01" min="0" oninput="calcParcelas(); agendarPrevia()">
+          </div>
+          <div class="valor-row" id="parcelas-display" style="display:none">
+            <div class="valor-box"><span>1ª parcela (50%)</span><strong id="p1">R$ 0,00</strong></div>
+            <div class="valor-box"><span>2ª parcela (50%)</span><strong id="p2">R$ 0,00</strong></div>
+          </div>
+        </div>
+
+      </div><!-- /panel-dados -->
+
+      <!-- PANEL: CLÁUSULAS -->
+      <div class="sidebar-panel" id="panel-clausulas">
+        <div class="hint-banner">
+          <strong>💡 Variáveis:</strong><br>
+          <code>{nome} {cpf} {rg} {endereco} {bairro} {cidade} {estado} {data_evento} {hora_inicio} {hora_fim} {hora_chegada} {local} {tipo_evento} {num_convidados} {garcons} {copeiros} {organizadores} {valor_total} {valor_extenso} {parcela}</code>
+        </div>
+        <div id="clausulas-container"></div>
+        <button class="btn btn-outline btn-sm" onclick="resetClausulas()" style="margin-top:4px">↺ Restaurar padrão</button>
+      </div>
+
+      <!-- PANEL: CONFIGURAÇÕES -->
+      <div class="sidebar-panel" id="panel-config">
+
+        <div class="form-section">
+          <div class="form-section-title">🖼️ Logo</div>
+          <div style="text-align:center; margin-bottom:10px;">
+            <div class="logo-preview-circle" id="logo-circle-preview">
+              <span id="logo-letter-preview">D</span>
+              <img id="logo-img-preview" alt="">
+            </div>
+          </div>
+          <div class="upload-area">
             <input type="file" id="logo-upload" accept="image/*" onchange="handleLogoUpload(event)">
-            <div class="upload-icon">🖼️</div>
+            <div class="up-icon">🖼️</div>
             <strong>Clique para escolher a logo</strong>
-            <p>PNG, JPG ou SVG · Recomendado: imagem quadrada</p>
+            <p>PNG, JPG ou SVG · Imagem quadrada recomendada</p>
           </div>
-          <p class="hint" style="margin-top:8px">A logo também será usada como ícone na aba do navegador (favicon)</p>
-          <button class="btn-secondary" onclick="removerLogo()" style="margin-top:10px; font-size:0.82rem; padding:8px 14px;">✕ Remover logo</button>
+          <button class="btn btn-outline btn-sm btn-full" onclick="removerLogo()" style="margin-top:8px">✕ Remover logo</button>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">🏷️</span>
-      <div><h3>Textos do Cabeçalho</h3><p>Nome e subtítulo exibidos na barra do site</p></div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="field half">
-          <label>Nome / Título principal</label>
-          <input type="text" id="cfg-titulo" placeholder="Ex: D'Luh Festas" oninput="previewHeader()">
+        <div class="form-section">
+          <div class="form-section-title">🏷️ Cabeçalho</div>
+          <div class="field"><label>Nome / Título</label><input type="text" id="cfg-titulo" placeholder="D'Luh Festas" oninput="previewHeader()"></div>
+          <div class="field"><label>Subtítulo</label><input type="text" id="cfg-subtitulo" placeholder="Gerador de Contrato de Buffet" oninput="previewHeader()"></div>
+          <div class="field"><label>Título da aba</label><input type="text" id="cfg-page-title" placeholder="D'Luh Festas – Gerador de Contrato" oninput="previewHeader()"></div>
         </div>
-        <div class="field half">
-          <label>Subtítulo</label>
-          <input type="text" id="cfg-subtitulo" placeholder="Ex: Gerador de Contrato de Buffet" oninput="previewHeader()">
-        </div>
-      </div>
-      <div class="row">
-        <div class="field full">
-          <label>Título da aba do navegador</label>
-          <input type="text" id="cfg-page-title" placeholder="Ex: D'Luh Festas – Gerador de Contrato" oninput="previewHeader()">
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">🎨</span>
-      <div><h3>Cor principal</h3><p>Afeta botões, destaques e elementos do PDF</p></div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="field half">
-          <label>Cor da marca</label>
-          <div class="color-row">
-            <input type="color" id="cfg-cor" value="#c0506a" oninput="previewCor()">
-            <input type="text" id="cfg-cor-hex" value="#c0506a" placeholder="#c0506a" oninput="syncCorHex()">
+        <div class="form-section">
+          <div class="form-section-title">🎨 Cor da marca</div>
+          <div class="field">
+            <div class="color-row">
+              <input type="color" id="cfg-cor" value="#c0506a" oninput="previewCor()">
+              <input type="text" id="cfg-cor-hex" value="#c0506a" placeholder="#c0506a" oninput="syncCorHex()">
+            </div>
           </div>
         </div>
+
+        <div class="form-section">
+          <div class="form-section-title">🏢 Dados da Contratada</div>
+          <div class="field"><label>Nome / Empresa</label><input type="text" id="cfg-contratada-nome" placeholder="LUCIANA DE AGUILAR FREITAS"></div>
+          <div class="field"><label>Nome fantasia</label><input type="text" id="cfg-contratada-fantasia" placeholder="D'Luhfestas"></div>
+          <div class="field"><label>Endereço</label><input type="text" id="cfg-contratada-endereco" placeholder="Rua Visconde de Taunay, 278"></div>
+          <div class="field-row">
+            <div class="field"><label>Bairro</label><input type="text" id="cfg-contratada-bairro" placeholder="VILA MARIA CANDIDA"></div>
+            <div class="field"><label>CEP</label><input type="text" id="cfg-contratada-cep" placeholder="39402-394"></div>
+          </div>
+          <div class="field"><label>Cidade / Estado</label><input type="text" id="cfg-contratada-cidade" placeholder="MONTES CLAROS / MG"></div>
+          <div class="field-row">
+            <div class="field"><label>Nacionalidade</label><input type="text" id="cfg-contratada-nac" placeholder="Brasileira"></div>
+            <div class="field"><label>Estado Civil</label><input type="text" id="cfg-contratada-civil" placeholder="casada"></div>
+          </div>
+          <div class="field"><label>CNPJ</label><input type="text" id="cfg-contratada-cnpj" placeholder="00.000.000/0000-00"></div>
+          <div class="field-row">
+            <div class="field"><label>Telefone</label><input type="text" id="cfg-telefone" placeholder="(38) 99222-9178"></div>
+            <div class="field"><label>Foro</label><input type="text" id="cfg-foro" placeholder="MONTES CLAROS"></div>
+          </div>
+          <div class="field"><label>Slogan (rodapé PDF)</label><input type="text" id="cfg-slogan" placeholder="Fazemos bolos, doces e salgados…"></div>
+        </div>
+
+        <button class="btn btn-brand btn-full" onclick="salvarConfig()">💾 Salvar Configurações</button>
+
+      </div><!-- /panel-config -->
+
+    </div><!-- /sidebar-body -->
+
+    <!-- Sidebar footer: action buttons -->
+    <div class="sidebar-footer">
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline btn-full" onclick="salvarClausulas()" id="btn-salvar-cl" style="display:none">
+          💾 Salvar Cláusulas
+        </button>
       </div>
+      <button class="btn btn-brand btn-full" onclick="gerarContrato()">
+        ⬇️ Baixar Contrato PDF
+      </button>
+      <div style="text-align:center; font-size:0.68rem; color:var(--muted);">PDF gerado localmente — seus dados não saem daqui</div>
     </div>
-  </div>
 
-  <div class="section-divider"><span>Dados da Empresa (Contratada)</span></div>
+  </aside><!-- /sidebar -->
 
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">🏢</span>
-      <div><h3>Dados da Contratada</h3><p>Informações fixas que aparecem no topo de todo contrato</p></div>
+  <!-- ════════════════ PREVIEW PANE ════════════════ -->
+  <main class="preview-pane" id="preview-pane-main">
+
+    <!-- This pane is also a mobile panel -->
+    <div id="panel-preview" class="sidebar-panel active" style="display:flex; flex-direction:column; height:100%;">
+
+      <div class="preview-topbar">
+        <div class="preview-topbar-left">
+          <h2>Prévia do Contrato</h2>
+          <span class="preview-badge" id="preview-badge">Ao vivo</span>
+        </div>
+        <div class="preview-topbar-right">
+          <button class="btn btn-ghost btn-sm" onclick="gerarContrato()">⬇️ Baixar PDF</button>
+        </div>
+      </div>
+
+      <div class="preview-wrap">
+        <div class="preview-shadow-paper" id="preview-paper">
+          <div class="preview-placeholder" id="preview-placeholder">
+            <div class="big-icon">📄</div>
+            <p>Preencha os dados ao lado para ver a prévia do contrato aqui</p>
+          </div>
+          <iframe id="preview-iframe" style="display:none" title="Prévia do contrato"></iframe>
+        </div>
+      </div>
+
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="field half"><label>Nome do proprietário / empresa</label><input type="text" id="cfg-contratada-nome" placeholder="Ex: LUCIANA DE AGUILAR FREITAS"></div>
-        <div class="field half"><label>Nome fantasia</label><input type="text" id="cfg-contratada-fantasia" placeholder="Ex: D'Luhfestas"></div>
-      </div>
-      <div class="row">
-        <div class="field full"><label>Endereço completo</label><input type="text" id="cfg-contratada-endereco" placeholder="Ex: Rua Visconde de Taunay, 278"></div>
-      </div>
-      <div class="row">
-        <div class="field third"><label>Bairro</label><input type="text" id="cfg-contratada-bairro" placeholder="Ex: VILA MARIA CANDIDA"></div>
-        <div class="field third"><label>CEP</label><input type="text" id="cfg-contratada-cep" placeholder="Ex: 39402-394"></div>
-        <div class="field third"><label>Cidade / Estado</label><input type="text" id="cfg-contratada-cidade" placeholder="Ex: MONTES CLAROS / MG"></div>
-      </div>
-      <div class="row">
-        <div class="field third"><label>Nacionalidade</label><input type="text" id="cfg-contratada-nac" placeholder="Brasileira"></div>
-        <div class="field third"><label>Estado Civil</label><input type="text" id="cfg-contratada-civil" placeholder="casada"></div>
-        <div class="field third"><label>CNPJ</label><input type="text" id="cfg-contratada-cnpj" placeholder="00.000.000/0000-00"></div>
-      </div>
-      <div class="row">
-        <div class="field half"><label>Telefone</label><input type="text" id="cfg-telefone" placeholder="Ex: (38) 99222-9178"></div>
-        <div class="field half"><label>Foro (comarca)</label><input type="text" id="cfg-foro" placeholder="Ex: MONTES CLAROS"></div>
-      </div>
-      <div class="row">
-        <div class="field full"><label>Slogan / descrição (rodapé do PDF)</label><input type="text" id="cfg-slogan" placeholder="Ex: Fazemos bolos, doces e salgados · Serviços de buffet"></div>
-      </div>
-    </div>
-  </div>
 
-  <button class="btn-primary full-width" onclick="salvarConfig()">
-    <span>💾</span> Salvar Configurações
-  </button>
+  </main>
 
-</div>
-</div>
+</div><!-- /app -->
 
-<div class="save-notice" id="save-notice">✓ Salvo com sucesso!</div>
+<div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+// ═══════════════════════════════════════════
+//  STATE & DEFAULTS
+// ═══════════════════════════════════════════
 let logoDataUrl = null;
+let previewTimer = null;
+let previewPdfUrl = null;
 
 const DEFAULT_CONFIG = {
   titulo: "D'Luh Festas",
@@ -487,15 +599,10 @@ const DEFAULT_CONFIG = {
   slogan: "Fazemos bolos, doces e salgados · Serviços de buffet · Equipe completa para seu evento",
   foro: "MONTES CLAROS",
   contratada: {
-    nome: "LUCIANA DE AGUILAR FREITAS",
-    fantasia: "D'Luhfestas",
-    endereco: "Rua Visconde de Taunay, 278",
-    bairro: "VILA MARIA CANDIDA",
-    cep: "39402-394",
-    cidade: "MONTES CLAROS / MG",
-    nac: "Brasileira",
-    civil: "casada",
-    cnpj: "47.271.021/0001-05"
+    nome: "LUCIANA DE AGUILAR FREITAS", fantasia: "D'Luhfestas",
+    endereco: "Rua Visconde de Taunay, 278", bairro: "VILA MARIA CANDIDA",
+    cep: "39402-394", cidade: "MONTES CLAROS / MG",
+    nac: "Brasileira", civil: "casada", cnpj: "47.271.021/0001-05"
   }
 };
 
@@ -528,26 +635,69 @@ function loadState() {
 }
 function saveConfig(cfg) { localStorage.setItem('dluh_config', JSON.stringify(cfg)); }
 function saveClausulas(cls) { localStorage.setItem('dluh_clausulas', JSON.stringify(cls)); }
-function saveLogo(url) { if(url) localStorage.setItem('dluh_logo', url); else localStorage.removeItem('dluh_logo'); }
+function saveLogo(url) { url ? localStorage.setItem('dluh_logo', url) : localStorage.removeItem('dluh_logo'); }
 
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   const { cfg, cls } = loadState();
   applyConfig(cfg);
-  renderClausulas(cls);
   fillConfigForm(cfg);
+  renderClausulas(cls);
   if (logoDataUrl) applyLogo(logoDataUrl);
 });
 
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  document.getElementById('tab-' + id).classList.add('active');
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+function showSidebarPanel(id) {
+  document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  const stab = document.getElementById('stab-' + id);
+  if (stab) stab.classList.add('active');
+
+  // Show/hide "Salvar Cláusulas" button
+  document.getElementById('btn-salvar-cl').style.display = id === 'clausulas' ? 'flex' : 'none';
 }
 
+let currentMobilePanel = 'dados';
+function showMobilePanel(id) {
+  currentMobilePanel = id;
+
+  // Hide all sidebar panels and preview
+  document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('mtab-' + id).classList.add('active');
+
+  if (id === 'preview') {
+    // Show preview panel inside main area
+    document.getElementById('panel-preview').classList.add('active');
+    document.getElementById('preview-pane-main').style.display = 'flex';
+    document.querySelector('.sidebar').style.display = 'none';
+    // Generate preview when opening on mobile
+    gerarPrevia();
+  } else {
+    document.getElementById('preview-pane-main').style.display = 'none';
+    document.querySelector('.sidebar').style.display = 'flex';
+    document.getElementById('panel-' + id).classList.add('active');
+    // Sync with sidebar tab
+    document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+    const stab = document.getElementById('stab-' + id);
+    if (stab) stab.classList.add('active');
+    document.getElementById('btn-salvar-cl').style.display = id === 'clausulas' ? 'flex' : 'none';
+  }
+}
+
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
 function applyConfig(cfg) {
-  document.getElementById('nav-titulo').textContent = cfg.titulo || DEFAULT_CONFIG.titulo;
-  document.getElementById('nav-subtitulo').textContent = cfg.subtitulo || DEFAULT_CONFIG.subtitulo;
+  const titulo = cfg.titulo || DEFAULT_CONFIG.titulo;
+  const subtitulo = cfg.subtitulo || DEFAULT_CONFIG.subtitulo;
+  ['sb-titulo','mob-titulo'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = titulo; });
+  ['sb-subtitulo','mob-subtitulo'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = subtitulo; });
   document.getElementById('page-title').textContent = cfg.pageTitle || DEFAULT_CONFIG.pageTitle;
   const cor = cfg.cor || DEFAULT_CONFIG.cor;
   document.documentElement.style.setProperty('--brand', cor);
@@ -557,65 +707,50 @@ function applyConfig(cfg) {
 }
 
 function fillConfigForm(cfg) {
-  document.getElementById('cfg-titulo').value = cfg.titulo || DEFAULT_CONFIG.titulo;
-  document.getElementById('cfg-subtitulo').value = cfg.subtitulo || DEFAULT_CONFIG.subtitulo;
-  document.getElementById('cfg-page-title').value = cfg.pageTitle || DEFAULT_CONFIG.pageTitle;
-  document.getElementById('cfg-cor').value = cfg.cor || DEFAULT_CONFIG.cor;
-  document.getElementById('cfg-cor-hex').value = cfg.cor || DEFAULT_CONFIG.cor;
-  document.getElementById('cfg-telefone').value = cfg.telefone || DEFAULT_CONFIG.telefone;
-  document.getElementById('cfg-slogan').value = cfg.slogan || DEFAULT_CONFIG.slogan;
-  document.getElementById('cfg-foro').value = cfg.foro || DEFAULT_CONFIG.foro;
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ''; };
+  set('cfg-titulo', cfg.titulo || DEFAULT_CONFIG.titulo);
+  set('cfg-subtitulo', cfg.subtitulo || DEFAULT_CONFIG.subtitulo);
+  set('cfg-page-title', cfg.pageTitle || DEFAULT_CONFIG.pageTitle);
+  set('cfg-cor', cfg.cor || DEFAULT_CONFIG.cor);
+  set('cfg-cor-hex', cfg.cor || DEFAULT_CONFIG.cor);
+  set('cfg-telefone', cfg.telefone || DEFAULT_CONFIG.telefone);
+  set('cfg-slogan', cfg.slogan || DEFAULT_CONFIG.slogan);
+  set('cfg-foro', cfg.foro || DEFAULT_CONFIG.foro);
   const c = cfg.contratada || DEFAULT_CONFIG.contratada;
-  document.getElementById('cfg-contratada-nome').value = c.nome || '';
-  document.getElementById('cfg-contratada-fantasia').value = c.fantasia || '';
-  document.getElementById('cfg-contratada-endereco').value = c.endereco || '';
-  document.getElementById('cfg-contratada-bairro').value = c.bairro || '';
-  document.getElementById('cfg-contratada-cep').value = c.cep || '';
-  document.getElementById('cfg-contratada-cidade').value = c.cidade || '';
-  document.getElementById('cfg-contratada-nac').value = c.nac || '';
-  document.getElementById('cfg-contratada-civil').value = c.civil || '';
-  document.getElementById('cfg-contratada-cnpj').value = c.cnpj || '';
+  set('cfg-contratada-nome', c.nome);
+  set('cfg-contratada-fantasia', c.fantasia);
+  set('cfg-contratada-endereco', c.endereco);
+  set('cfg-contratada-bairro', c.bairro);
+  set('cfg-contratada-cep', c.cep);
+  set('cfg-contratada-cidade', c.cidade);
+  set('cfg-contratada-nac', c.nac);
+  set('cfg-contratada-civil', c.civil);
+  set('cfg-contratada-cnpj', c.cnpj);
 }
 
 function readConfigForm() {
+  const g = id => (document.getElementById(id) || {}).value || '';
   return {
-    titulo: document.getElementById('cfg-titulo').value,
-    subtitulo: document.getElementById('cfg-subtitulo').value,
-    pageTitle: document.getElementById('cfg-page-title').value,
-    cor: document.getElementById('cfg-cor').value,
-    telefone: document.getElementById('cfg-telefone').value,
-    slogan: document.getElementById('cfg-slogan').value,
-    foro: document.getElementById('cfg-foro').value,
+    titulo: g('cfg-titulo'), subtitulo: g('cfg-subtitulo'), pageTitle: g('cfg-page-title'),
+    cor: g('cfg-cor'), telefone: g('cfg-telefone'), slogan: g('cfg-slogan'), foro: g('cfg-foro'),
     contratada: {
-      nome: document.getElementById('cfg-contratada-nome').value,
-      fantasia: document.getElementById('cfg-contratada-fantasia').value,
-      endereco: document.getElementById('cfg-contratada-endereco').value,
-      bairro: document.getElementById('cfg-contratada-bairro').value,
-      cep: document.getElementById('cfg-contratada-cep').value,
-      cidade: document.getElementById('cfg-contratada-cidade').value,
-      nac: document.getElementById('cfg-contratada-nac').value,
-      civil: document.getElementById('cfg-contratada-civil').value,
-      cnpj: document.getElementById('cfg-contratada-cnpj').value,
+      nome: g('cfg-contratada-nome'), fantasia: g('cfg-contratada-fantasia'),
+      endereco: g('cfg-contratada-endereco'), bairro: g('cfg-contratada-bairro'),
+      cep: g('cfg-contratada-cep'), cidade: g('cfg-contratada-cidade'),
+      nac: g('cfg-contratada-nac'), civil: g('cfg-contratada-civil'), cnpj: g('cfg-contratada-cnpj'),
     }
   };
 }
 
-function salvarConfig() {
-  const cfg = readConfigForm();
-  saveConfig(cfg);
-  applyConfig(cfg);
-  showNotice('✓ Configurações salvas!');
-}
-
+function salvarConfig() { const cfg = readConfigForm(); saveConfig(cfg); applyConfig(cfg); showToast('✓ Configurações salvas!'); }
 function previewHeader() {
   const t = document.getElementById('cfg-titulo').value;
   const s = document.getElementById('cfg-subtitulo').value;
   const pt = document.getElementById('cfg-page-title').value;
-  if (t) document.getElementById('nav-titulo').textContent = t;
-  if (s) document.getElementById('nav-subtitulo').textContent = s;
+  ['sb-titulo','mob-titulo'].forEach(id => { const el=document.getElementById(id); if(el&&t) el.textContent=t; });
+  ['sb-subtitulo','mob-subtitulo'].forEach(id => { const el=document.getElementById(id); if(el&&s) el.textContent=s; });
   if (pt) document.getElementById('page-title').textContent = pt;
 }
-
 function previewCor() {
   const cor = document.getElementById('cfg-cor').value;
   document.getElementById('cfg-cor-hex').value = cor;
@@ -626,95 +761,67 @@ function previewCor() {
 }
 function syncCorHex() {
   const v = document.getElementById('cfg-cor-hex').value;
-  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
-    document.getElementById('cfg-cor').value = v;
-    previewCor();
-  }
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) { document.getElementById('cfg-cor').value = v; previewCor(); }
 }
 
+// ═══════════════════════════════════════════
+//  LOGO
+// ═══════════════════════════════════════════
 function handleLogoUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+  const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = (ev) => {
-    logoDataUrl = ev.target.result;
-    saveLogo(logoDataUrl);
-    applyLogo(logoDataUrl);
-    showNotice('✓ Logo atualizada!');
-  };
+  reader.onload = ev => { logoDataUrl = ev.target.result; saveLogo(logoDataUrl); applyLogo(logoDataUrl); showToast('✓ Logo atualizada!'); };
   reader.readAsDataURL(file);
 }
-
 function applyLogo(url) {
-  const imgEl = document.getElementById('nav-logo-img-el');
-  const letterEl = document.getElementById('nav-logo-letter');
-  imgEl.src = url; imgEl.style.display = 'block';
-  letterEl.style.display = 'none';
-  const prev = document.getElementById('preview-logo');
-  const circ = document.getElementById('logo-circle-preview');
-  prev.src = url; prev.style.display = 'block';
-  if (circ) circ.style.display = 'none';
-  const favicon = document.getElementById('favicon');
-  favicon.href = url;
-  document.getElementById('upload-area').style.borderColor = 'var(--brand)';
+  ['sb-logo-img','mob-logo-img','logo-img-preview'].forEach(id => {
+    const img = document.getElementById(id); if(img){ img.src=url; img.style.display='block'; }
+  });
+  ['sb-logo-letter','mob-logo-letter','logo-letter-preview'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display='none';
+  });
+  document.getElementById('favicon').href = url;
 }
-
 function removerLogo() {
-  logoDataUrl = null;
-  saveLogo(null);
-  const imgEl = document.getElementById('nav-logo-img-el');
-  const letterEl = document.getElementById('nav-logo-letter');
-  imgEl.style.display = 'none'; letterEl.style.display = 'block';
-  const prev = document.getElementById('preview-logo');
-  const circ = document.getElementById('logo-circle-preview');
-  prev.style.display = 'none';
-  if (circ) circ.style.display = 'flex';
+  logoDataUrl = null; saveLogo(null);
+  ['sb-logo-img','mob-logo-img','logo-img-preview'].forEach(id => {
+    const img = document.getElementById(id); if(img){ img.style.display='none'; img.src=''; }
+  });
+  ['sb-logo-letter','mob-logo-letter','logo-letter-preview'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display='';
+  });
   document.getElementById('favicon').href = '';
   document.getElementById('logo-upload').value = '';
-  document.getElementById('upload-area').style.borderColor = '';
-  showNotice('Logo removida');
+  showToast('Logo removida');
 }
 
+// ═══════════════════════════════════════════
+//  CLÁUSULAS
+// ═══════════════════════════════════════════
 function renderClausulas(cls) {
-  const container = document.getElementById('clausulas-container');
-  container.innerHTML = '';
-  cls.forEach((c, i) => {
-    const div = document.createElement('div');
-    div.className = 'clausula-item';
-    div.innerHTML = `
-      <div class="clausula-label">
-        <span>Cláusula ${i+1}ª – ${c.label}</span>
-      </div>
-      <textarea id="cl_${c.id}" rows="3">${c.texto}</textarea>
-    `;
-    container.appendChild(div);
+  const c = document.getElementById('clausulas-container'); c.innerHTML = '';
+  cls.forEach((item, i) => {
+    const d = document.createElement('div'); d.className = 'clausula-item';
+    d.innerHTML = `<div class="clausula-num">Cláusula ${i+1}ª – ${item.label}</div>
+      <textarea id="cl_${item.id}" rows="3" class="field">${item.texto}</textarea>`;
+    c.appendChild(d);
   });
 }
-
 function getClausulasFromForm() {
   const { cls } = loadState();
-  return cls.map(c => ({
-    ...c,
-    texto: document.getElementById('cl_' + c.id)?.value || c.texto
-  }));
+  return cls.map(c => ({ ...c, texto: (document.getElementById('cl_' + c.id)||{}).value || c.texto }));
 }
-
-function salvarClausulas() {
-  const updated = getClausulasFromForm();
-  saveClausulas(updated);
-  showNotice('✓ Cláusulas salvas!');
-}
-
+function salvarClausulas() { saveClausulas(getClausulasFromForm()); showToast('✓ Cláusulas salvas!'); }
 function resetClausulas() {
-  if (!confirm('Restaurar todas as cláusulas para o texto original?')) return;
-  saveClausulas(DEFAULT_CLAUSULAS);
-  renderClausulas(DEFAULT_CLAUSULAS);
-  showNotice('✓ Cláusulas restauradas!');
+  if (!confirm('Restaurar cláusulas padrão?')) return;
+  saveClausulas(DEFAULT_CLAUSULAS); renderClausulas(DEFAULT_CLAUSULAS); showToast('✓ Restaurado!');
 }
 
+// ═══════════════════════════════════════════
+//  FORM HELPERS
+// ═══════════════════════════════════════════
 function fmt(v) { return parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function fmtData(s) { if(!s) return '___/___/______'; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
-
+function fmtData(s) { if(!s)return'___/___/______'; const[y,m,d]=s.split('-'); return`${d}/${m}/${y}`; }
 function calcParcelas() {
   const v = parseFloat(document.getElementById('valor_total').value) || 0;
   const p = v/2;
@@ -722,7 +829,6 @@ function calcParcelas() {
   document.getElementById('p2').textContent = 'R$ ' + fmt(p);
   document.getElementById('parcelas-display').style.display = v > 0 ? 'flex' : 'none';
 }
-
 function valorExtenso(v) {
   const n = Math.round(parseFloat(v));
   if (isNaN(n)||n<=0) return 'valor a definir';
@@ -734,333 +840,246 @@ function valorExtenso(v) {
   function mil(n){const m=Math.floor(n/1000),r=n%1000;if(m===0)return cen(r);const pm=m===1?'mil':cen(m)+' mil';return pm+(r?' e '+cen(r):'');}
   return mil(n)+' reais';
 }
-
-function g(id){return document.getElementById(id).value.trim();}
-function validar(){
-  const campos=[['nome','Nome'],['cpf','CPF'],['endereco','Endereço'],['bairro','Bairro'],['cidade','Cidade'],['estado','Estado'],['data_evento','Data do evento'],['local','Local'],['tipo_evento','Tipo de evento'],['num_convidados','Nº de convidados'],['valor_total','Valor total']];
-  for(const [id,l] of campos){if(!g(id)){alert(`Preencha: ${l}`);document.getElementById(id).focus();return false;}}
-  return true;
+function g(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function substituir(texto, vars) {
+  return texto.replace(/\{(\w+)\}/g, (_,k) => vars[k] !== undefined ? vars[k] : `{${k}}`);
+}
+function getContratoVars(validar = true) {
+  if (validar) {
+    const campos=[['nome','Nome'],['cpf','CPF'],['endereco','Endereço'],['bairro','Bairro'],['cidade','Cidade'],['estado','Estado'],['data_evento','Data do evento'],['local','Local'],['tipo_evento','Tipo de evento'],['num_convidados','Nº de convidados'],['valor_total','Valor total']];
+    for(const [id,l] of campos){ if(!g(id)){ alert(`Preencha: ${l}`); document.getElementById(id).focus(); return null; }}
+  }
+  const vt = parseFloat(g('valor_total')) || 0;
+  return {
+    nome:g('nome'), cpf:g('cpf'), rg:g('rg'),
+    endereco:g('endereco'), bairro:g('bairro'), cidade:g('cidade'), estado:g('estado').toUpperCase(),
+    data_evento:fmtData(g('data_evento')),
+    hora_inicio:g('hora_inicio'), hora_fim:g('hora_fim'), hora_chegada:g('hora_chegada'),
+    local:g('local'), tipo_evento:g('tipo_evento'), num_convidados:g('num_convidados'),
+    garcons:g('garcons'), copeiros:g('copeiros'), organizadores:g('organizadores'),
+    valor_total:fmt(vt), valor_extenso:valorExtenso(vt), parcela:fmt(vt/2),
+  };
 }
 
-function substituir(texto, vars) {
-  return texto.replace(/\{(\w+)\}/g, (_, key) => vars[key] !== undefined ? vars[key] : `{${key}}`);
+// ═══════════════════════════════════════════
+//  LIVE PREVIEW (auto-refresh)
+// ═══════════════════════════════════════════
+function agendarPrevia() {
+  clearTimeout(previewTimer);
+  document.getElementById('preview-badge').textContent = '…';
+  previewTimer = setTimeout(gerarPrevia, 700);
+}
+
+function gerarPrevia() {
+  const vars = getContratoVars(false); // sem validação para preview parcial
+  if (!vars || !vars.nome) {
+    // Nenhum dado ainda
+    document.getElementById('preview-placeholder').style.display = 'flex';
+    document.getElementById('preview-iframe').style.display = 'none';
+    document.getElementById('preview-badge').textContent = 'Ao vivo';
+    return;
+  }
+
+  try {
+    const pdfBlob = gerarPDFBlob(vars);
+    if (previewPdfUrl) URL.revokeObjectURL(previewPdfUrl);
+    previewPdfUrl = URL.createObjectURL(pdfBlob);
+
+    const iframe = document.getElementById('preview-iframe');
+    const placeholder = document.getElementById('preview-placeholder');
+    iframe.src = previewPdfUrl;
+    iframe.style.display = 'block';
+    placeholder.style.display = 'none';
+    document.getElementById('preview-badge').textContent = 'Ao vivo ✓';
+  } catch(e) {
+    console.error('Preview error:', e);
+    document.getElementById('preview-badge').textContent = 'Erro';
+  }
 }
 
 function gerarContrato() {
-  if (!validar()) return;
-  const vt = parseFloat(g('valor_total'))||0;
-  const vars = {
-    nome: g('nome'), cpf: g('cpf'), rg: g('rg'),
-    endereco: g('endereco'), bairro: g('bairro'), cidade: g('cidade'), estado: g('estado').toUpperCase(),
-    data_evento: fmtData(g('data_evento')),
-    hora_inicio: g('hora_inicio'), hora_fim: g('hora_fim'), hora_chegada: g('hora_chegada'),
-    local: g('local'), tipo_evento: g('tipo_evento'), num_convidados: g('num_convidados'),
-    garcons: g('garcons'), copeiros: g('copeiros'), organizadores: g('organizadores'),
-    valor_total: fmt(vt), valor_extenso: valorExtenso(vt), parcela: fmt(vt/2),
-  };
-  baixarPDF(vars);
+  const vars = getContratoVars(true);
+  if (!vars) return;
+  const { jsPDF } = window.jspdf;
+  const { cfg } = loadState();
+  const doc = buildPDF(vars, cfg);
+  doc.save(`Contrato_${vars.nome.split(' ')[0]}_${vars.data_evento.replace(/\//g,'-')}.pdf`);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  PDF – CABEÇALHO FIEL AO CONTRATO ORIGINAL D'LUH FESTAS
-//  Estrutura: faixa preta (telefone) | branco (logo) | faixa preta (slogan 3 linhas)
-// ═══════════════════════════════════════════════════════════════════
-function baixarPDF(vars) {
+function gerarPDFBlob(vars) {
+  const { cfg } = loadState();
+  const doc = buildPDF(vars, cfg);
+  return doc.output('blob');
+}
+
+// ═══════════════════════════════════════════
+//  PDF BUILDER
+// ═══════════════════════════════════════════
+function buildPDF(vars, cfg) {
   const { jsPDF } = window.jspdf;
-  const { cfg, cls } = loadState();
-  const c = cfg.contratada || DEFAULT_CONFIG.contratada;
+  const { cls } = loadState();
+  const empresa = cfg.contratada || DEFAULT_CONFIG.contratada;
 
   const doc = new jsPDF({ unit:'mm', format:'a4' });
-  const W = 210, mL = 20, mR = 20, lW = W - mL - mR;
-  const cx = W / 2;
+  const W = 210, mL = 20, mR = 20, lW = W - mL - mR, cx = W / 2;
 
-  // ── CABEÇALHO FIEL AO ORIGINAL ───────────────────────────────────
-  // Altura das faixas
-  const faixaTopH = 8;    // faixa preta superior (telefone)
-  const logoAreaH = 28;   // área branca central com a logo
-  const faixaBotH = 14;   // faixa preta inferior (slogan 3 linhas)
+  // ── CABEÇALHO ──
+  const faixaTopH = 10, logoAreaH = 32, faixaBotH = 8;
+  const headerH = faixaTopH + logoAreaH + faixaBotH;
 
-  // 1) FAIXA PRETA SUPERIOR
-  doc.setFillColor(20, 20, 20);
+  doc.setFillColor(20,20,20);
   doc.rect(0, 0, W, faixaTopH, 'F');
-
-  // Telefone centralizado na faixa superior
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(255, 255, 255);
-  doc.text(cfg.telefone || DEFAULT_CONFIG.telefone, cx, faixaTopH - 2, { align: 'center' });
-
-  // 2) ÁREA BRANCA CENTRAL (logo)
-  doc.setFillColor(255, 255, 255);
+  doc.setFillColor(255,255,255);
   doc.rect(0, faixaTopH, W, logoAreaH, 'F');
+  doc.setFillColor(20,20,20);
+  doc.rect(0, faixaTopH + logoAreaH, W, faixaBotH, 'F');
 
-  // Logo ou texto na área branca
-  const logoY = faixaTopH;
   if (logoDataUrl) {
     try {
-      const ext = logoDataUrl.includes('image/png') ? 'PNG' : 'JPEG';
-      // Logo centralizada, proporção semelhante à imagem original
-      const logoW = 55;
-      const logoH = 24;
-      doc.addImage(logoDataUrl, ext, cx - logoW / 2, logoY + 2, logoW, logoH);
-    } catch(e) {
-      _drawLogoText(doc, cfg, cx, logoY, logoAreaH);
-    }
+      const props = doc.getImageProperties(logoDataUrl);
+      const ratio = props.width / props.height;
+      const maxW = 80, maxH = 28;
+      let dw = maxW, dh = maxW / ratio;
+      if (dh > maxH) { dh = maxH; dw = dh * ratio; }
+      const lx = cx - dw/2, ly = faixaTopH + (logoAreaH - dh)/2;
+      const ext = logoDataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+      doc.addImage(logoDataUrl, ext, lx, ly, dw, dh);
+    } catch(e) { _logoFallback(doc, cfg, cx, faixaTopH, logoAreaH); }
   } else {
-    _drawLogoText(doc, cfg, cx, logoY, logoAreaH);
+    _logoFallback(doc, cfg, cx, faixaTopH, logoAreaH);
   }
 
-  // 3) FAIXA PRETA INFERIOR (slogan em 3 linhas, como no original)
-  const faixaBotY = faixaTopH + logoAreaH;
-  doc.setFillColor(20, 20, 20);
-  doc.rect(0, faixaBotY, W, faixaBotH, 'F');
+  doc.setTextColor(200,200,200);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(6.5);
+  doc.text(cfg.slogan || DEFAULT_CONFIG.slogan, cx, faixaTopH + logoAreaH + faixaBotH/2 + 1, { align:'center' });
 
-  // Slogan em 3 linhas (como o PDF original: "Fazemos bolos..." / "Serviços de buffet" / "Equipe completa...")
-  const sloganParts = (cfg.slogan || DEFAULT_CONFIG.slogan).split('·').map(s => s.trim());
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(220, 220, 220);
+  let y = headerH + 8;
 
-  if (sloganParts.length >= 3) {
-    doc.text(sloganParts[0], cx, faixaBotY + 4, { align: 'center' });
-    doc.text(sloganParts[1], cx, faixaBotY + 8, { align: 'center' });
-    doc.text(sloganParts[2], cx, faixaBotY + 12, { align: 'center' });
-  } else {
-    // fallback: quebra o texto em 3 linhas automático
-    const sloganWrapped = doc.splitTextToSize(cfg.slogan || DEFAULT_CONFIG.slogan, 160);
-    const startY = faixaBotY + 4;
-    sloganWrapped.slice(0, 3).forEach((line, i) => {
-      doc.text(line, cx, startY + i * 4, { align: 'center' });
-    });
-  }
-
-  // ── LINHA ORNAMENTAL APÓS CABEÇALHO ──
-  let y = faixaTopH + logoAreaH + faixaBotH + 4;
-
-  doc.setDrawColor(20, 20, 20);
-  doc.setLineWidth(0.6);
-  doc.line(mL, y, W - mR, y);
-  y += 1;
-  doc.setLineWidth(0.2);
-  doc.line(mL, y, W - mR, y);
-
-  // ── TÍTULO DO CONTRATO ──
-  y += 8;
-  doc.setTextColor(20, 20, 20);
-  doc.setFont('helvetica', 'bold');
+  // ── TÍTULO ──
+  doc.setTextColor(20,20,20);
+  doc.setFont('helvetica','bold');
   doc.setFontSize(10.5);
   doc.text('CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE BUFFET', cx, y, {align:'center'});
-
   y += 3;
-  doc.setLineWidth(0.3);
-  doc.line(cx - 40, y, cx - 3, y);
-  doc.setFillColor(20,20,20);
-  doc.circle(cx, y, 1.2, 'F');
-  doc.line(cx + 3, y, cx + 40, y);
+  doc.setLineWidth(0.3); doc.setDrawColor(20,20,20);
+  doc.line(cx-40,y,cx-3,y); doc.setFillColor(20,20,20); doc.circle(cx,y,1.2,'F'); doc.line(cx+3,y,cx+40,y);
 
-  // ── IDENTIFICAÇÃO DAS PARTES ──
+  // ── PARTES ──
   y += 8;
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(20, 20, 20);
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(20,20,20);
   doc.text('IDENTIFICAÇÃO DAS PARTES CONTRATANTES', mL, y);
+  y += 1.5; doc.setLineWidth(0.3); doc.line(mL,y,W-mR,y); y += 5;
 
-  y += 1.5;
-  doc.setLineWidth(0.3);
-  doc.line(mL, y, W - mR, y);
-  y += 5;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(40, 40, 40);
-
-  const idTexto = `CONTRATANTE: ${vars.nome}, residente à ${vars.endereco}, Bairro: ${vars.bairro}, Cidade: ${vars.cidade}/${vars.estado}, CPF: ${vars.cpf}${vars.rg ? ', RG: ' + vars.rg : ''}.\n\nCONTRATADA: ${c.nome}, proprietária da empresa ${c.fantasia}, com sede na ${c.endereco}, Bairro ${c.bairro}, CEP ${c.cep}, ${c.cidade}, Nacionalidade ${c.nac}, Estado Civil ${c.civil}, CNPJ ${c.cnpj}.`;
-
-  const idWrapped = doc.splitTextToSize(idTexto, lW);
-  doc.text(idWrapped, mL, y);
-  y += idWrapped.length * 4.2 + 5;
-
-  doc.setDrawColor(180, 180, 180);
-  doc.setLineWidth(0.2);
-  doc.line(mL, y, W - mR, y);
-  y += 6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(40,40,40);
+  const idTxt = `CONTRATANTE: ${vars.nome}, residente à ${vars.endereco}, Bairro: ${vars.bairro}, Cidade: ${vars.cidade}/${vars.estado}, CPF: ${vars.cpf}${vars.rg?', RG: '+vars.rg:''}.\n\nCONTRATADA: ${empresa.nome}, proprietária da empresa ${empresa.fantasia}, com sede na ${empresa.endereco}, Bairro ${empresa.bairro}, CEP ${empresa.cep}, ${empresa.cidade}, Nacionalidade ${empresa.nac}, Estado Civil ${empresa.civil}, CNPJ ${empresa.cnpj}.`;
+  const idW = doc.splitTextToSize(idTxt, lW);
+  doc.text(idW, mL, y); y += idW.length * 4.2 + 5;
+  doc.setDrawColor(180,180,180); doc.setLineWidth(0.2); doc.line(mL,y,W-mR,y); y += 6;
 
   // ── CLÁUSULAS ──
-  const SECTION_MAP = {
-    0:'DO OBJETO DO CONTRATO',
-    1:'DO EVENTO',
-    2:'OBRIGAÇÕES DA CONTRATANTE',
-    4:'OBRIGAÇÕES DA CONTRATADA',
-    11:'DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO',
-    12:'DO INADIMPLEMENTO',
-    13:'DA DEVOLUÇÃO',
-    14:'DA RESCISÃO',
-    15:'DAS MULTAS CONTRATUAIS E CONDIÇÕES GERAIS'
-  };
+  const SMAP = { 0:'DO OBJETO DO CONTRATO', 1:'DO EVENTO', 2:'OBRIGAÇÕES DA CONTRATANTE', 4:'OBRIGAÇÕES DA CONTRATADA', 11:'DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO', 12:'DO INADIMPLEMENTO', 13:'DA DEVOLUÇÃO', 14:'DA RESCISÃO', 15:'DAS MULTAS CONTRATUAIS E CONDIÇÕES GERAIS' };
 
-  // Cabeçalho compacto para páginas internas (só faixa preta superior com logo/nome)
-  function addPageHeader() {
-    doc.setFillColor(20, 20, 20);
-    doc.rect(0, 0, W, 10, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bolditalic');
-    doc.setFontSize(8);
-    doc.text(cfg.titulo || DEFAULT_CONFIG.titulo, cx, 6.5, { align: 'center' });
-    doc.setTextColor(40, 40, 40);
+  function pageHeader() {
+    doc.setFillColor(20,20,20); doc.rect(0,0,W,10,'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bolditalic'); doc.setFontSize(8);
+    doc.text(cfg.titulo || DEFAULT_CONFIG.titulo, cx, 6.5, {align:'center'});
+    doc.setTextColor(40,40,40);
   }
 
-  cls.forEach((c_item, i) => {
-    if (y > 268) {
-      doc.addPage();
-      addPageHeader();
-      y = 18;
-    }
-
-    if (SECTION_MAP[i] !== undefined) {
-      if (y > 255) { doc.addPage(); addPageHeader(); y = 18; }
+  cls.forEach((ci, i) => {
+    if (y > 268) { doc.addPage(); pageHeader(); y = 18; }
+    if (SMAP[i] !== undefined) {
+      if (y > 255) { doc.addPage(); pageHeader(); y = 18; }
       y += 2;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7.5);
-      doc.setTextColor(20, 20, 20);
-
-      doc.setFillColor(235, 235, 235);
-      doc.rect(mL, y - 3.5, lW, 6, 'F');
-      doc.setDrawColor(20, 20, 20);
-      doc.setLineWidth(0.4);
-      doc.rect(mL, y - 3.5, lW, 6, 'S');
-      doc.text(SECTION_MAP[i], mL + 3, y + 0.5);
-      doc.setTextColor(40, 40, 40);
-      y += 6;
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(20,20,20);
+      doc.setFillColor(235,235,235); doc.rect(mL,y-3.5,lW,6,'F');
+      doc.setDrawColor(20,20,20); doc.setLineWidth(0.4); doc.rect(mL,y-3.5,lW,6,'S');
+      doc.text(SMAP[i], mL+3, y+0.5); doc.setTextColor(40,40,40); y += 6;
     }
-
     const num = `Cláusula ${i+1}ª.`;
-    const texto = substituir(c_item.texto, vars);
-    const full = num + ' ' + texto;
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(40, 40, 40);
-
+    const full = num + ' ' + substituir(ci.texto, vars);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(40,40,40);
     const wrapped = doc.splitTextToSize(full, lW);
-    if (y + wrapped.length * 4.3 > 272) {
-      doc.addPage();
-      addPageHeader();
-      y = 18;
-    }
-
-    doc.setFont('helvetica', 'bold');
-    const numW = doc.getTextWidth(num);
+    if (y + wrapped.length * 4.3 > 272) { doc.addPage(); pageHeader(); y = 18; }
+    doc.setFont('helvetica','bold');
+    const nW = doc.getTextWidth(num);
     doc.text(num, mL, y);
-    doc.setFont('helvetica', 'normal');
-
-    const firstRest = wrapped[0].substring(num.length + 1);
-    if (firstRest) doc.text(firstRest, mL + numW + 1, y);
-    if (wrapped.length > 1) doc.text(wrapped.slice(1), mL, y + 4.3);
-
+    doc.setFont('helvetica','normal');
+    const rest0 = wrapped[0].substring(num.length + 1);
+    if (rest0) doc.text(rest0, mL+nW+1, y);
+    if (wrapped.length > 1) doc.text(wrapped.slice(1), mL, y+4.3);
     y += wrapped.length * 4.3 + 3.5;
   });
 
   // ── FORO ──
-  if (y > 260) { doc.addPage(); addPageHeader(); y = 18; }
+  if (y > 260) { doc.addPage(); pageHeader(); y = 18; }
   y += 3;
-
-  doc.setFillColor(235, 235, 235);
-  doc.rect(mL, y - 3.5, lW, 6, 'F');
-  doc.setDrawColor(20, 20, 20);
-  doc.setLineWidth(0.4);
-  doc.rect(mL, y - 3.5, lW, 6, 'S');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
-  doc.setTextColor(20, 20, 20);
-  doc.text('DO FORO', mL + 3, y + 0.5);
-  y += 7;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(40, 40, 40);
-  const foroNum = `Cláusula ${cls.length + 1}ª.`;
-  const foroResto = ` Para dirimir quaisquer controvérsias oriundas do presente contrato, as partes elegem o foro da comarca de ${cfg.foro || DEFAULT_CONFIG.foro}.`;
-  const foroFull = foroNum + foroResto;
-  const foroW = doc.splitTextToSize(foroFull, lW);
-  const numWF = doc.getTextWidth(foroNum);
-  doc.text(foroNum, mL, y);
-  doc.setFont('helvetica', 'normal');
-  const foroRest0 = foroW[0].substring(foroNum.length + 1);
-  if (foroRest0) doc.text(foroRest0, mL + numWF + 1, y);
-  if (foroW.length > 1) doc.text(foroW.slice(1), mL, y + 4.3);
-  y += foroW.length * 4.3 + 10;
+  doc.setFillColor(235,235,235); doc.rect(mL,y-3.5,lW,6,'F');
+  doc.setDrawColor(20,20,20); doc.setLineWidth(0.4); doc.rect(mL,y-3.5,lW,6,'S');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(20,20,20);
+  doc.text('DO FORO', mL+3, y+0.5); y += 7;
+  const fNum = `Cláusula ${cls.length+1}ª.`;
+  const fFull = fNum + ` Para dirimir quaisquer controvérsias oriundas do presente contrato, as partes elegem o foro da comarca de ${cfg.foro || DEFAULT_CONFIG.foro}.`;
+  const fW = doc.splitTextToSize(fFull, lW);
+  const fNW = doc.getTextWidth(fNum);
+  doc.setFont('helvetica','bold'); doc.text(fNum, mL, y);
+  doc.setFont('helvetica','normal');
+  const fR0 = fW[0].substring(fNum.length+1);
+  if (fR0) doc.text(fR0, mL+fNW+1, y);
+  if (fW.length > 1) doc.text(fW.slice(1), mL, y+4.3);
+  y += fW.length * 4.3 + 10;
 
   // ── ASSINATURAS ──
-  if (y > 248) { doc.addPage(); addPageHeader(); y = 18; }
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(40, 40, 40);
+  if (y > 248) { doc.addPage(); pageHeader(); y = 18; }
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(40,40,40);
   doc.text(`Montes Claros, ______ de __________________ de __________.`, mL, y);
   y += 14;
-
-  doc.setDrawColor(80, 80, 80);
-  doc.setLineWidth(0.4);
-  doc.line(mL, y, mL + 72, y);
-  doc.line(W - mR - 72, y, W - mR, y);
-  y += 4;
-
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(20, 20, 20);
+  doc.setDrawColor(80,80,80); doc.setLineWidth(0.4);
+  doc.line(mL,y,mL+72,y); doc.line(W-mR-72,y,W-mR,y); y += 4;
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(20,20,20);
   doc.text('Assinatura da Contratante', mL, y);
-  doc.text('Assinatura da Contratada', W - mR - 72, y);
-  y += 3.5;
+  doc.text('Assinatura da Contratada', W-mR-72, y); y += 3.5;
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(100,100,100);
+  doc.text(vars.nome, mL, y); doc.text(empresa.nome, W-mR-72, y);
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(100, 100, 100);
-  doc.text(vars.nome, mL, y);
-  doc.text(c.nome, W - mR - 72, y);
-
-  // ── RODAPÉ EM TODAS AS PÁGINAS ──
+  // ── RODAPÉ ──
   const total = doc.getNumberOfPages();
   for (let i = 1; i <= total; i++) {
     doc.setPage(i);
-
-    doc.setFillColor(20, 20, 20);
-    doc.rect(0, 283, W, 14, 'F');
-
-    doc.setTextColor(200, 200, 200);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(6.5);
-    doc.text(`${cfg.titulo || DEFAULT_CONFIG.titulo}  ·  ${c.cnpj}  ·  ${cfg.telefone || DEFAULT_CONFIG.telefone}`, cx, 289, {align:'center'});
-
-    doc.setTextColor(150, 150, 150);
-    doc.setFontSize(6);
+    doc.setFillColor(20,20,20); doc.rect(0,283,W,14,'F');
+    doc.setTextColor(200,200,200); doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+    doc.text(`${cfg.titulo||DEFAULT_CONFIG.titulo}  ·  ${empresa.cnpj}  ·  ${cfg.telefone||DEFAULT_CONFIG.telefone}`, cx, 289, {align:'center'});
+    doc.setTextColor(150,150,150); doc.setFontSize(6);
     doc.text(`Página ${i} de ${total}`, cx, 293, {align:'center'});
   }
 
-  doc.save(`Contrato_${vars.nome.split(' ')[0]}_${vars.data_evento.replace(/\//g,'-')}.pdf`);
+  return doc;
 }
 
-// Fallback: desenha texto estilizado quando não há logo
-function _drawLogoText(doc, cfg, cx, logoY, logoAreaH) {
-  doc.setFont('helvetica', 'bolditalic');
-  doc.setFontSize(16);
-  doc.setTextColor(40, 40, 40);
-  doc.text(cfg.titulo || DEFAULT_CONFIG.titulo, cx, logoY + logoAreaH / 2 + 2, { align: 'center' });
+function _logoFallback(doc, cfg, cx, areaY, areaH) {
+  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(20,20,20);
+  doc.text(cfg.titulo||DEFAULT_CONFIG.titulo, cx, areaY+areaH/2-1, {align:'center'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(120,120,120);
+  doc.text(cfg.subtitulo||DEFAULT_CONFIG.subtitulo, cx, areaY+areaH/2+6, {align:'center'});
 }
 
-function showNotice(msg) {
-  const el = document.getElementById('save-notice');
+// ═══════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════
+function showToast(msg) {
+  const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2500);
 }
-
 function shadeColor(hex, pct) {
-  let r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-  r=Math.min(255,Math.max(0,r+pct)); g=Math.min(255,Math.max(0,g+pct)); b=Math.min(255,Math.max(0,b+pct));
-  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+  let r=parseInt(hex.slice(1,3),16),gg=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  r=Math.min(255,Math.max(0,r+pct)); gg=Math.min(255,Math.max(0,gg+pct)); b=Math.min(255,Math.max(0,b+pct));
+  return '#'+[r,gg,b].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 function hexToRgba(hex, a) {
-  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-  return `rgba(${r},${g},${b},${a})`;
+  const r=parseInt(hex.slice(1,3),16),gg=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${gg},${b},${a})`;
 }
 </script>
 </body>
