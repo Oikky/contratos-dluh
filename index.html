@@ -761,9 +761,10 @@ function gerarContrato() {
   baixarPDF(vars);
 }
 
-// ═══════════════════════════════════════════════════════════
-//  PDF – ESTILO D'LUH FESTAS (faixa preta + logo ornamental)
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  PDF – CABEÇALHO FIEL AO CONTRATO ORIGINAL D'LUH FESTAS
+//  Estrutura: faixa preta (telefone) | branco (logo) | faixa preta (slogan 3 linhas)
+// ═══════════════════════════════════════════════════════════════════
 function baixarPDF(vars) {
   const { jsPDF } = window.jspdf;
   const { cfg, cls } = loadState();
@@ -771,119 +772,89 @@ function baixarPDF(vars) {
 
   const doc = new jsPDF({ unit:'mm', format:'a4' });
   const W = 210, mL = 20, mR = 20, lW = W - mL - mR;
-
-  // ── CABEÇALHO ESTILO BANNER ──────────────────────────────
-  // Faixa preta superior
-  doc.setFillColor(20, 20, 20);
-  doc.rect(0, 0, W, 14, 'F');
-
-  // Faixa preta inferior do cabeçalho
-  doc.setFillColor(20, 20, 20);
-  doc.rect(0, 28, W, 14, 'F');
-
-  // Fundo branco central (para a moldura da logo)
-  doc.setFillColor(255, 255, 255);
-  doc.rect(0, 14, W, 14, 'F');
-
-  // Desenhar moldura ornamental (estilo do logo da imagem)
-  // Usando coordenadas centradas
   const cx = W / 2;
-  const moldW = 70; // largura da moldura
-  const moldH = 18; // altura da moldura
-  const moldX = cx - moldW / 2;
-  const moldY = 14;
 
-  // Fundo branco da moldura
-  doc.setFillColor(255, 255, 255);
+  // ── CABEÇALHO FIEL AO ORIGINAL ───────────────────────────────────
+  // Altura das faixas
+  const faixaTopH = 8;    // faixa preta superior (telefone)
+  const logoAreaH = 28;   // área branca central com a logo
+  const faixaBotH = 14;   // faixa preta inferior (slogan 3 linhas)
 
-  // Forma da moldura com bordas arredondadas (simulando o badge ornamental)
-  // Bordas curvas externas da moldura
-  doc.setDrawColor(20, 20, 20);
-  doc.setLineWidth(0.8);
-
-  // Retângulo principal da moldura com bordas onduladas simuladas
-  // Canto superior esquerdo
-  doc.roundedRect(moldX, moldY + 1, moldW, moldH - 2, 4, 4, 'FD');
-
-  // Detalhes ornamentais: linhas decorativas nas laterais
-  doc.setLineWidth(0.5);
-  // Detalhe esquerdo
-  doc.line(moldX - 6, moldY + moldH/2, moldX - 1, moldY + moldH/2);
-  doc.ellipse(moldX - 7, moldY + moldH/2, 1.5, 1.5, 'S');
-  // Detalhe direito
-  doc.line(moldX + moldW + 1, moldY + moldH/2, moldX + moldW + 6, moldY + moldH/2);
-  doc.ellipse(moldX + moldW + 7, moldY + moldH/2, 1.5, 1.5, 'S');
-
-  // Pequenos pontos ornamentais nos cantos
+  // 1) FAIXA PRETA SUPERIOR
   doc.setFillColor(20, 20, 20);
-  doc.circle(moldX + 3, moldY + 3, 0.6, 'F');
-  doc.circle(moldX + moldW - 3, moldY + 3, 0.6, 'F');
-  doc.circle(moldX + 3, moldY + moldH - 1, 0.6, 'F');
-  doc.circle(moldX + moldW - 3, moldY + moldH - 1, 0.6, 'F');
+  doc.rect(0, 0, W, faixaTopH, 'F');
 
-  // Linha ornamental interna superior
-  doc.setLineWidth(0.3);
-  doc.line(moldX + 5, moldY + 3.5, moldX + moldW - 5, moldY + 3.5);
-  // Linha ornamental interna inferior
-  doc.line(moldX + 5, moldY + moldH - 2, moldX + moldW - 5, moldY + moldH - 2);
+  // Telefone centralizado na faixa superior
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(255, 255, 255);
+  doc.text(cfg.telefone || DEFAULT_CONFIG.telefone, cx, faixaTopH - 2, { align: 'center' });
 
-  // Se tem logo, usar dentro da moldura
+  // 2) ÁREA BRANCA CENTRAL (logo)
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, faixaTopH, W, logoAreaH, 'F');
+
+  // Logo ou texto na área branca
+  const logoY = faixaTopH;
   if (logoDataUrl) {
     try {
       const ext = logoDataUrl.includes('image/png') ? 'PNG' : 'JPEG';
-      // Logo centralizada na moldura
-      doc.addImage(logoDataUrl, ext, cx - 28, moldY + 1.5, 56, 15);
+      // Logo centralizada, proporção semelhante à imagem original
+      const logoW = 55;
+      const logoH = 24;
+      doc.addImage(logoDataUrl, ext, cx - logoW / 2, logoY + 2, logoW, logoH);
     } catch(e) {
-      // Fallback: texto
-      doc.setFont('helvetica', 'bolditalic');
-      doc.setFontSize(11);
-      doc.setTextColor(20, 20, 20);
-      doc.text(cfg.titulo || DEFAULT_CONFIG.titulo, cx, moldY + moldH/2 + 1.5, {align:'center'});
+      _drawLogoText(doc, cfg, cx, logoY, logoAreaH);
     }
   } else {
-    // Texto elegante na moldura
-    doc.setFont('helvetica', 'bolditalic');
-    doc.setFontSize(11);
-    doc.setTextColor(20, 20, 20);
-    doc.text(cfg.titulo || DEFAULT_CONFIG.titulo, cx, moldY + 7, {align:'center'});
-
-    // Ícone do bolo (usando símbolo Unicode simplificado)
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.text('✦', cx, moldY + 12, {align:'center'});
+    _drawLogoText(doc, cfg, cx, logoY, logoAreaH);
   }
 
-  // Texto nas faixas pretas
-  doc.setTextColor(255, 255, 255);
+  // 3) FAIXA PRETA INFERIOR (slogan em 3 linhas, como no original)
+  const faixaBotY = faixaTopH + logoAreaH;
+  doc.setFillColor(20, 20, 20);
+  doc.rect(0, faixaBotY, W, faixaBotH, 'F');
+
+  // Slogan em 3 linhas (como o PDF original: "Fazemos bolos..." / "Serviços de buffet" / "Equipe completa...")
+  const sloganParts = (cfg.slogan || DEFAULT_CONFIG.slogan).split('·').map(s => s.trim());
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
+  doc.setFontSize(7);
+  doc.setTextColor(220, 220, 220);
 
-  // Faixa superior: slogan
-  const slogan = cfg.slogan || DEFAULT_CONFIG.slogan;
-  doc.text(slogan, cx, 9, {align:'center'});
+  if (sloganParts.length >= 3) {
+    doc.text(sloganParts[0], cx, faixaBotY + 4, { align: 'center' });
+    doc.text(sloganParts[1], cx, faixaBotY + 8, { align: 'center' });
+    doc.text(sloganParts[2], cx, faixaBotY + 12, { align: 'center' });
+  } else {
+    // fallback: quebra o texto em 3 linhas automático
+    const sloganWrapped = doc.splitTextToSize(cfg.slogan || DEFAULT_CONFIG.slogan, 160);
+    const startY = faixaBotY + 4;
+    sloganWrapped.slice(0, 3).forEach((line, i) => {
+      doc.text(line, cx, startY + i * 4, { align: 'center' });
+    });
+  }
 
-  // Faixa inferior: contato / CNPJ
-  doc.text(`${cfg.telefone || DEFAULT_CONFIG.telefone}   ·   CNPJ: ${c.cnpj}`, cx, 35, {align:'center'});
+  // ── LINHA ORNAMENTAL APÓS CABEÇALHO ──
+  let y = faixaTopH + logoAreaH + faixaBotH + 4;
 
-  // ── LINHA SEPARADORA APÓS CABEÇALHO ──
-  let y = 48;
   doc.setDrawColor(20, 20, 20);
-  doc.setLineWidth(0.8);
-  doc.line(mL, y - 2, W - mR, y - 2);
+  doc.setLineWidth(0.6);
+  doc.line(mL, y, W - mR, y);
+  y += 1;
   doc.setLineWidth(0.2);
   doc.line(mL, y, W - mR, y);
 
   // ── TÍTULO DO CONTRATO ──
-  y += 7;
+  y += 8;
   doc.setTextColor(20, 20, 20);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10.5);
   doc.text('CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE BUFFET', cx, y, {align:'center'});
 
-  // Ornamento sob o título
   y += 3;
   doc.setLineWidth(0.3);
   doc.line(cx - 40, y, cx - 3, y);
+  doc.setFillColor(20,20,20);
   doc.circle(cx, y, 1.2, 'F');
   doc.line(cx + 3, y, cx + 40, y);
 
@@ -897,7 +868,7 @@ function baixarPDF(vars) {
   y += 1.5;
   doc.setLineWidth(0.3);
   doc.line(mL, y, W - mR, y);
-  y += 4;
+  y += 5;
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
@@ -909,7 +880,6 @@ function baixarPDF(vars) {
   doc.text(idWrapped, mL, y);
   y += idWrapped.length * 4.2 + 5;
 
-  // Linha separadora
   doc.setDrawColor(180, 180, 180);
   doc.setLineWidth(0.2);
   doc.line(mL, y, W - mR, y);
@@ -928,14 +898,14 @@ function baixarPDF(vars) {
     15:'DAS MULTAS CONTRATUAIS E CONDIÇÕES GERAIS'
   };
 
+  // Cabeçalho compacto para páginas internas (só faixa preta superior com logo/nome)
   function addPageHeader() {
-    // Faixa preta compacta para páginas internas
     doc.setFillColor(20, 20, 20);
     doc.rect(0, 0, W, 10, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bolditalic');
     doc.setFontSize(8);
-    doc.text(cfg.titulo || DEFAULT_CONFIG.titulo, cx, 6.5, {align:'center'});
+    doc.text(cfg.titulo || DEFAULT_CONFIG.titulo, cx, 6.5, { align: 'center' });
     doc.setTextColor(40, 40, 40);
   }
 
@@ -946,7 +916,6 @@ function baixarPDF(vars) {
       y = 18;
     }
 
-    // Cabeçalho de seção
     if (SECTION_MAP[i] !== undefined) {
       if (y > 255) { doc.addPage(); addPageHeader(); y = 18; }
       y += 2;
@@ -954,7 +923,6 @@ function baixarPDF(vars) {
       doc.setFontSize(7.5);
       doc.setTextColor(20, 20, 20);
 
-      // Fundo cinza claro para o título da seção
       doc.setFillColor(235, 235, 235);
       doc.rect(mL, y - 3.5, lW, 6, 'F');
       doc.setDrawColor(20, 20, 20);
@@ -980,13 +948,11 @@ function baixarPDF(vars) {
       y = 18;
     }
 
-    // Número da cláusula em negrito
     doc.setFont('helvetica', 'bold');
     const numW = doc.getTextWidth(num);
     doc.text(num, mL, y);
     doc.setFont('helvetica', 'normal');
 
-    // Restante do texto na mesma linha
     const firstRest = wrapped[0].substring(num.length + 1);
     if (firstRest) doc.text(firstRest, mL + numW + 1, y);
     if (wrapped.length > 1) doc.text(wrapped.slice(1), mL, y + 4.3);
@@ -998,7 +964,6 @@ function baixarPDF(vars) {
   if (y > 260) { doc.addPage(); addPageHeader(); y = 18; }
   y += 3;
 
-  // Cabeçalho seção foro
   doc.setFillColor(235, 235, 235);
   doc.rect(mL, y - 3.5, lW, 6, 'F');
   doc.setDrawColor(20, 20, 20);
@@ -1034,7 +999,6 @@ function baixarPDF(vars) {
   doc.text(`Montes Claros, ______ de __________________ de __________.`, mL, y);
   y += 14;
 
-  // Linhas de assinatura
   doc.setDrawColor(80, 80, 80);
   doc.setLineWidth(0.4);
   doc.line(mL, y, mL + 72, y);
@@ -1059,7 +1023,6 @@ function baixarPDF(vars) {
   for (let i = 1; i <= total; i++) {
     doc.setPage(i);
 
-    // Faixa preta rodapé
     doc.setFillColor(20, 20, 20);
     doc.rect(0, 283, W, 14, 'F');
 
@@ -1074,6 +1037,14 @@ function baixarPDF(vars) {
   }
 
   doc.save(`Contrato_${vars.nome.split(' ')[0]}_${vars.data_evento.replace(/\//g,'-')}.pdf`);
+}
+
+// Fallback: desenha texto estilizado quando não há logo
+function _drawLogoText(doc, cfg, cx, logoY, logoAreaH) {
+  doc.setFont('helvetica', 'bolditalic');
+  doc.setFontSize(16);
+  doc.setTextColor(40, 40, 40);
+  doc.text(cfg.titulo || DEFAULT_CONFIG.titulo, cx, logoY + logoAreaH / 2 + 2, { align: 'center' });
 }
 
 function showNotice(msg) {
