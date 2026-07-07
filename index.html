@@ -157,6 +157,8 @@
 <div class="toast" id="toast"></div>
 
 <!-- Bibliotecas (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="model.js"></script>
@@ -213,7 +215,7 @@ function buildForm(){
     const wrap = document.createElement('div');
     wrap.className = 'field';
     wrap.id = 'field-'+f.id;
-    const ph = f.tipo==='money' ? 'Ex: 2.500,00' : f.tipo==='doc' ? 'CPF ou CNPJ' : '';
+    const ph = f.placeholder || (f.tipo==='money' ? 'Ex: 2.500,00' : f.tipo==='doc' ? 'CPF ou CNPJ' : '');
     const input = f.tipo==='textarea'
       ? `<textarea id="in-${f.id}" data-id="${f.id}" placeholder="${ph}"></textarea>`
       : `<input id="in-${f.id}" data-id="${f.id}" type="${f.tipo==='date'?'date':'text'}"
@@ -298,8 +300,26 @@ function fill(text, vals){
     return val;
   });
 }
+// monta a lista de equipe só com os cargos que têm quantidade
+function buildEquipe(v){
+  const roles = [
+    {q:v.garcons,      s:'garçom',      p:'garçons'},
+    {q:v.cozinheiras,  s:'cozinheira',  p:'cozinheiras'},
+    {q:v.organizadores,s:'organizador', p:'organizadores'},
+    {q:v.auxiliares,   s:'auxiliar',    p:'auxiliares'},
+  ];
+  const parts = [];
+  roles.forEach(r=>{
+    const n = parseInt(String(r.q||'').replace(/\D/g,''),10);
+    if(n>0) parts.push(`${n} ${n===1?r.s:r.p}`);
+  });
+  if(parts.length===0) return 'a definir';
+  if(parts.length===1) return parts[0];
+  return parts.slice(0,-1).join(', ') + ' e ' + parts[parts.length-1];
+}
 function renderPreview(){
   const vals = getValues();
+  vals.equipe = buildEquipe(vals);   // valor calculado p/ a cláusula 8
   const p = document.getElementById('preview');
   let html = '';
   if (window.LOGO_CONTRATO) html += `<div class="logo"><img src="${window.LOGO_CONTRATO}" alt="logo"></div>`;
@@ -452,12 +472,34 @@ function defaultName(){
 // ============================================================
 function gerarPDF(){
   if(!validate()){ toast('Corrija os campos destacados.'); return; }
-  renderPreview();
+  if(typeof pdfMake==='undefined'){ toast('Biblioteca do PDF ainda carregando, tente de novo.'); return; }
+  const vals = getValues();
+  vals.equipe = buildEquipe(vals);
   const nome = (document.getElementById('contractName').value.trim() || defaultName());
-  const prev = document.title;
-  document.title = nome;                 // vira o nome sugerido do PDF
-  toast('Na janela que abrir, escolha "Salvar como PDF".');
-  setTimeout(()=>{ window.print(); document.title = prev; }, 300);
+  const CW = 531;   // largura útil (A4 595pt - margens 32+32)
+
+  const content = [];
+  if(window.LOGO_CONTRATO) content.push({ image: window.LOGO_CONTRATO, width: CW, margin:[0,0,0,10] });
+  content.push({ text: MODEL.titulo.toUpperCase(), bold:true, alignment:'center', fontSize:12, margin:[0,0,0,10] });
+  clausesState.forEach(cl=>{
+    content.push({
+      unbreakable:true,   // não corta a cláusula entre páginas
+      stack:[
+        { text: cl.titulo, bold:true, fontSize:9.5, margin:[0,0,0,2] },
+        { text: fill(cl.texto, vals), fontSize:9.5, alignment:'justify', margin:[0,0,0,7] }
+      ]
+    });
+  });
+
+  const doc = {
+    pageSize:'A4',
+    pageMargins:[32,24,32,28],
+    content,
+    defaultStyle:{ fontSize:9.5, lineHeight:1.18 }
+  };
+  const arquivo = nome.replace(/[^\w\s-]/g,'').replace(/\s+/g,'_') + '.pdf';
+  pdfMake.createPdf(doc).download(arquivo);
+  toast('PDF baixado.');
 }
 
 // ============================================================
