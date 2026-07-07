@@ -37,13 +37,13 @@
   .clause h4{margin:0 0 6px;font-size:14px}
   .clause textarea{min-height:90px;font-size:13px}
   /* Preview / PDF */
-  #preview{background:#fff;padding:48px;max-width:800px;margin:0 auto;
-    font-family:Georgia,"Times New Roman",serif;color:#111;font-size:14px}
-  #preview .logo{margin:0 -48px 20px;overflow:hidden}
+  #preview{background:#fff;padding:40px 44px;max-width:800px;margin:0 auto;
+    font-family:Georgia,"Times New Roman",serif;color:#111;font-size:12px;line-height:1.34}
+  #preview .logo{margin:0 -44px 12px;overflow:hidden}
   #preview .logo img{display:block;width:100%;max-width:none;height:auto}
-  #preview h2{text-align:center;font-size:18px;margin:0 0 24px;text-transform:uppercase}
-  #preview .cl{margin:0 0 18px}
-  #preview .cl h3{font-size:14px;margin:0 0 6px}
+  #preview h2{text-align:center;font-size:15px;margin:0 0 14px;text-transform:uppercase}
+  #preview .cl{margin:0 0 8px}
+  #preview .cl h3{font-size:12px;margin:0 0 2px}
   #preview .cl p{margin:0;white-space:pre-wrap;text-align:justify}
   table{width:100%;border-collapse:collapse;font-size:14px}
   th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}
@@ -100,7 +100,7 @@
       <div class="row" style="justify-content:space-between">
         <div>
           <label style="margin:0">Nome deste contrato (para o histórico)</label>
-          <input id="contractName" placeholder="Ex: Contrato — João Silva">
+          <input id="contractName" placeholder="Em branco = Nome Sobrenome - Tipo de evento">
         </div>
         <div class="row noprint">
           <button onclick="novo()">Novo</button>
@@ -161,6 +161,7 @@ const MODEL = window.MODELO_PADRAO;
 let sb = null;                 // cliente supabase
 let clausesState = [];         // cláusulas (texto editável) deste contrato
 let useSupabase = false;
+let extensoDirty = false;       // usuário editou o "valor por extenso" manualmente?
 
 // ---- init supabase (se configurado) ----
 if (CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY && window.supabase) {
@@ -212,9 +213,25 @@ function buildForm(){
       <div class="err" id="err-${f.id}"></div>`;
     c.appendChild(wrap);
   });
-  // atualizar preview ao digitar
-  c.querySelectorAll('[data-id]').forEach(el=>{
-    el.addEventListener('input', ()=>{ clearErr(el.dataset.id); renderPreview(); });
+  // formatação e atualização ao digitar
+  MODEL.campos.forEach(f=>{
+    const el = document.getElementById('in-'+f.id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      clearErr(f.id);
+      if(f.tipo==='doc') el.value = maskDoc(el.value);
+      if(f.id==='valor_extenso') extensoDirty = true;
+      if(f.id==='valor_total' && !extensoDirty){
+        const ex = document.getElementById('in-valor_extenso');
+        if(ex) ex.value = extensoReais(el.value);
+      }
+      renderPreview();
+    });
+    el.addEventListener('blur', ()=>{
+      if(f.tipo==='money'){ const n=parseMoney(el.value); if(!isNaN(n)) el.value=fmtMoney(el.value); }
+      if(f.tipo==='hora'){ el.value = fmtHora(el.value); }
+      renderPreview();
+    });
   });
 }
 
@@ -345,17 +362,93 @@ function fmtMoney(v){ const n=parseMoney(v); return isNaN(n)?v:n.toLocaleString(
 function fmtDate(v){ if(!/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; const[a,m,d]=v.split('-'); return `${d}/${m}/${a}`; }
 function escapeHtml(s){ return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
+// ---- máscara CPF/CNPJ ----
+function maskDoc(v){
+  const d = v.replace(/\D/g,'').slice(0,14);
+  if(d.length<=11){ // CPF
+    if(d.length>9) return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
+    if(d.length>6) return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6)}`;
+    if(d.length>3) return `${d.slice(0,3)}.${d.slice(3)}`;
+    return d;
+  } // CNPJ
+  return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`.replace(/[-/.]+$/,'');
+}
+// ---- hora (normaliza "2100" -> "21:00"; preserva AM/PM) ----
+function fmtHora(v){
+  const t = String(v).trim();
+  if(!t) return t;
+  const ampm = /(am|pm)/i.exec(t);
+  const d = t.replace(/\D/g,'');
+  let core = t;
+  if(/^\d{3,4}$/.test(d)){
+    const hh = d.slice(0, d.length-2), mm = d.slice(-2);
+    core = hh.padStart(2,'0')+':'+mm;
+  } else if(/^\d{1,2}$/.test(d)){
+    core = d.padStart(2,'0')+':00';
+  }
+  return ampm ? core+' '+ampm[1].toUpperCase() : core;
+}
+// ---- número por extenso (pt-BR) ----
+function extensoReais(v){
+  let n = parseMoney(v);
+  if(isNaN(n)) return '';
+  n = Math.round(n*100);
+  const reais = Math.floor(n/100), cent = n%100;
+  let out = '';
+  if(reais>0) out = numeroExtenso(reais) + (reais===1?' real':' reais');
+  if(cent>0) out += (out?' e ':'') + numeroExtenso(cent) + (cent===1?' centavo':' centavos');
+  return out || 'zero reais';
+}
+const _U=['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+const _D=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+const _C=['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+function ate999(n){
+  if(n===0) return '';
+  if(n===100) return 'cem';
+  let s=''; const c=Math.floor(n/100), r=n%100;
+  if(c>0) s=_C[c];
+  if(r>0){ if(s) s+=' e ';
+    if(r<20) s+=_U[r];
+    else { const d=Math.floor(r/10), u=r%10; s+=_D[d]; if(u>0) s+=' e '+_U[u]; }
+  }
+  return s;
+}
+function numeroExtenso(n){
+  if(n===0) return 'zero';
+  const bil=Math.floor(n/1e9), mi=Math.floor(n/1e6)%1000, mil=Math.floor(n/1000)%1000, resto=n%1000;
+  const parts=[];
+  if(bil>0)  parts.push(ate999(bil)+(bil===1?' bilhão':' bilhões'));
+  if(mi>0)   parts.push(ate999(mi)+(mi===1?' milhão':' milhões'));
+  if(mil>0)  parts.push(mil===1?'mil':ate999(mil)+' mil');
+  if(resto>0)parts.push(ate999(resto));
+  let out='';
+  for(let i=0;i<parts.length;i++){
+    if(i>0) out += (i===parts.length-1 && (resto<100 || resto%100===0)) ? ' e ' : ', ';
+    out += parts[i];
+  }
+  return out;
+}
+// ---- nome padrão do contrato ----
+function defaultName(){
+  const v = getValues();
+  const nome = (v.contratante_nome||'').trim().split(/\s+/).slice(0,2).join(' ');
+  const evento = (v.evento_tipo||'').trim();
+  if(nome && evento) return `${nome} - ${evento}`;
+  if(nome) return nome;
+  return MODEL.titulo;
+}
+
 // ============================================================
 //  PDF
 // ============================================================
 function gerarPDF(){
   if(!validate()){ toast('Corrija os campos destacados.'); return; }
   renderPreview();
-  const nome = (document.getElementById('contractName').value.trim() || MODEL.titulo)
+  const nome = (document.getElementById('contractName').value.trim() || defaultName())
     .replace(/[^\w\s-]/g,'').replace(/\s+/g,'_');
   const el = document.getElementById('preview').cloneNode(true);
   html2pdf().set({
-    margin:[15,12,15,12],
+    margin:[10,11,10,11],
     filename: nome+'.pdf',
     image:{type:'jpeg',quality:.98},
     html2canvas:{scale:2,useCORS:true},
@@ -369,7 +462,7 @@ function gerarPDF(){
 // ============================================================
 function currentRecord(){
   return {
-    nome: document.getElementById('contractName').value.trim() || MODEL.titulo,
+    nome: document.getElementById('contractName').value.trim() || defaultName(),
     modelo_titulo: MODEL.titulo,
     campos: getValues(),
     clausulas: clausesState,
@@ -435,6 +528,7 @@ async function abrir(id){
   document.getElementById('editingId').value = r.id;
   document.getElementById('contractName').value = r.nome||'';
   setValues(r.campos||{});
+  extensoDirty = true;
   loadClauses(r.clausulas);
   renderPreview();
   showView('editor');
@@ -459,6 +553,7 @@ function lsSet(l){ localStorage.setItem('contratos',JSON.stringify(l)); }
 function novo(){
   document.getElementById('editingId').value='';
   document.getElementById('contractName').value='';
+  extensoDirty = false;
   setValues({});
   loadClauses(null);
   renderPreview();
