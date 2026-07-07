@@ -63,7 +63,17 @@
     #preview .logo{margin:0 -24px 14px}
     .wrap{padding:12px}
   }
-  @media print{header,.noprint{display:none!important}}
+  @media print{
+    @page{ size:A4; margin:12mm; }
+    body{ background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    body *{ visibility:hidden; }
+    #preview, #preview *{ visibility:visible; }
+    #preview{ position:absolute; left:0; top:0; width:100%; max-width:none;
+      padding:0; margin:0; font-size:12px; }
+    #preview .logo{ margin:0 0 10px; }
+    #preview .cl{ page-break-inside:avoid; break-inside:avoid; }
+    header,.noprint{ display:none!important; }
+  }
 </style>
 </head>
 <body>
@@ -147,7 +157,6 @@
 <div class="toast" id="toast"></div>
 
 <!-- Bibliotecas (CDN) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="model.js"></script>
@@ -444,17 +453,11 @@ function defaultName(){
 function gerarPDF(){
   if(!validate()){ toast('Corrija os campos destacados.'); return; }
   renderPreview();
-  const nome = (document.getElementById('contractName').value.trim() || defaultName())
-    .replace(/[^\w\s-]/g,'').replace(/\s+/g,'_');
-  const el = document.getElementById('preview').cloneNode(true);
-  html2pdf().set({
-    margin:[10,11,10,11],
-    filename: nome+'.pdf',
-    image:{type:'jpeg',quality:.98},
-    html2canvas:{scale:2,useCORS:true},
-    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-    pagebreak:{mode:['css','legacy']}
-  }).from(el).save().then(()=>toast('PDF gerado.'));
+  const nome = (document.getElementById('contractName').value.trim() || defaultName());
+  const prev = document.title;
+  document.title = nome;                 // vira o nome sugerido do PDF
+  toast('Na janela que abrir, escolha "Salvar como PDF".');
+  setTimeout(()=>{ window.print(); document.title = prev; }, 300);
 }
 
 // ============================================================
