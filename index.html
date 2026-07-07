@@ -45,6 +45,11 @@
   #preview .cl{margin:0 0 8px}
   #preview .cl h3{font-size:12px;margin:0 0 2px}
   #preview .cl p{margin:0;white-space:pre-wrap;text-align:justify}
+  #preview .sig{margin-top:22px}
+  #preview .sig .place{text-align:center;margin-bottom:24px}
+  #preview .sig .place .line{display:block;width:55%;margin:0 auto 4px;border-top:1px solid #111}
+  #preview .sig .srow{display:flex;align-items:flex-end;gap:8px;margin-bottom:16px}
+  #preview .sig .srow .fill{flex:1;border-bottom:1px solid #111;height:1px}
   table{width:100%;border-collapse:collapse;font-size:14px}
   th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}
   th{color:var(--muted);font-weight:600;font-size:12px}
@@ -129,7 +134,10 @@
     <div class="card noprint">
       <div class="row" style="justify-content:space-between">
         <h3 style="margin:0">Texto do contrato (cláusulas)</h3>
-        <button onclick="toggleClauses()" id="btnClauses">Editar texto</button>
+        <div class="row">
+          <button onclick="resetClauses()">Texto padrão</button>
+          <button onclick="toggleClauses()" id="btnClauses">Editar texto</button>
+        </div>
       </div>
       <p class="muted">Você pode alterar qualquer cláusula. Use <code>{{id_do_campo}}</code> para inserir dados automaticamente.</p>
       <div id="clauses" class="hidden"></div>
@@ -160,9 +168,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="model.js"></script>
-<script src="logo.js"></script>
+<script src="config.js?v=2"></script>
+<script src="model.js?v=2"></script>
+<script src="logo.js?v=2"></script>
 <script>
 // ============================================================
 //  ESTADO
@@ -281,6 +289,12 @@ function renderClausesEditor(){
     t.addEventListener('input', ()=>{ clausesState[t.dataset.i].texto = t.value; renderPreview(); });
   });
 }
+function resetClauses(){
+  if(!confirm('Restaurar o texto padrão do modelo? Substitui as edições de texto feitas neste contrato (os dados preenchidos permanecem).')) return;
+  loadClauses(null);   // recarrega as cláusulas atuais do modelo
+  renderPreview();
+  toast('Texto padrão restaurado.');
+}
 function toggleClauses(){
   const el = document.getElementById('clauses');
   const hidden = el.classList.toggle('hidden');
@@ -294,7 +308,10 @@ function fill(text, vals){
   return text.replace(/\{\{\s*([\w]+)\s*\}\}/g, (_,k)=>{
     const f = MODEL.campos.find(x=>x.id===k);
     let val = vals[k];
-    if (val==null || val==='') return '__________';
+    if (val==null || val===''){
+      // obrigatório vazio: traço (dica na tela). opcional/derivado vazio: some, sem barras
+      return (f && f.obrigatorio) ? '__________' : '';
+    }
     if (f && f.tipo==='money') val = fmtMoney(val);
     if (f && f.tipo==='date')  val = fmtDate(val);
     return val;
@@ -328,6 +345,11 @@ function renderPreview(){
     html += `<div class="cl"><h3>${escapeHtml(cl.titulo)}</h3>
       <p>${escapeHtml(fill(cl.texto, vals))}</p></div>`;
   });
+  html += `<div class="sig">
+    <div class="place"><span class="line"></span>${escapeHtml(vals.cidade||'')}</div>
+    <div class="srow"><span>Nome e assinatura do Contratado:</span><span class="fill"></span></div>
+    <div class="srow"><span>Assinatura do Contratante:</span><span class="fill"></span></div>
+  </div>`;
   p.innerHTML = html;
 }
 
@@ -489,6 +511,25 @@ function gerarPDF(){
         { text: fill(cl.texto, vals), fontSize:9.5, alignment:'justify', margin:[0,0,0,7] }
       ]
     });
+  });
+
+  // ---- bloco de assinaturas ----
+  const sigRow = (label)=>({
+    table:{ widths:['auto','*'], body:[[
+      { text: label, border:[false,false,false,false], fontSize:9.5, margin:[0,12,6,0] },
+      { text: ' ',   border:[false,false,false,true],  margin:[0,12,0,2] }
+    ]]},
+    margin:[0,0,0,6]
+  });
+  content.push({
+    unbreakable:true,
+    margin:[0,16,0,0],
+    stack:[
+      { canvas:[{ type:'line', x1:150, y1:12, x2:381, y2:12, lineWidth:0.8 }] },
+      { text: vals.cidade||'', alignment:'center', fontSize:9.5, margin:[0,3,0,22] },
+      sigRow('Nome e assinatura do Contratado:'),
+      sigRow('Assinatura do Contratante:')
+    ]
   });
 
   const doc = {
