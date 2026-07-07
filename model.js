@@ -27,9 +27,10 @@ window.MODELO_PADRAO = {
     { id: "convidados",    label: "Nº estimado de convidados",    tipo: "text", obrigatorio: true },
     { id: "chegada",       label: "Horário de chegada da equipe", tipo: "hora", obrigatorio: true },
     { id: "antecedencia",  label: "Antecedência de preparação",   tipo: "text", obrigatorio: false },
-    { id: "garcons",       label: "Qtd. de garçons",              tipo: "text", obrigatorio: false },
-    { id: "cozinheiras",   label: "Qtd. de cozinheiras",          tipo: "text", obrigatorio: false },
-    { id: "organizadores", label: "Qtd. de organizadores",        tipo: "text", obrigatorio: false },
+    { id: "garcons",       label: "Qtd. de garçons",              tipo: "text", obrigatorio: false, placeholder: "vazio se não houver" },
+    { id: "cozinheiras",   label: "Qtd. de cozinheiras",          tipo: "text", obrigatorio: false, placeholder: "vazio se não houver" },
+    { id: "organizadores", label: "Qtd. de organizadores",        tipo: "text", obrigatorio: false, placeholder: "vazio se não houver" },
+    { id: "auxiliares",    label: "Qtd. de auxiliares",           tipo: "text", obrigatorio: false, placeholder: "vazio se não houver" },
     // --- Pagamento ---
     { id: "valor_total",   label: "Valor total (R$)",             tipo: "money", obrigatorio: true },
     { id: "valor_extenso", label: "Valor total por extenso",      tipo: "text",  obrigatorio: true },
@@ -108,8 +109,7 @@ window.MODELO_PADRAO = {
       id: "c8",
       titulo: "CLÁUSULA 8ª",
       texto:
-        "Serão disponibilizados {{garcons}} garçons, {{cozinheiras}} cozinheira(s) e {{organizadores}} " +
-        "organizador(es) para execução do serviço."
+        "Serão disponibilizados para a execução do serviço: {{equipe}}."
     },
     {
       id: "c9",
