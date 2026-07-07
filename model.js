@@ -20,12 +20,12 @@ window.MODELO_PADRAO = {
     { id: "evento_tipo",   label: "Tipo de evento",               tipo: "text", obrigatorio: true },
     { id: "data_evento",   label: "Data do evento",               tipo: "date", obrigatorio: true },
     { id: "local_evento",  label: "Local/espaço do evento",       tipo: "text", obrigatorio: true },
-    { id: "inicio",        label: "Horário de início",            tipo: "text", obrigatorio: true },
-    { id: "fim",           label: "Horário de término",           tipo: "text", obrigatorio: true },
+    { id: "inicio",        label: "Horário de início",            tipo: "hora", obrigatorio: true },
+    { id: "fim",           label: "Horário de término",           tipo: "hora", obrigatorio: true },
     { id: "duracao",       label: "Duração do evento",            tipo: "text", obrigatorio: true },
     { id: "tolerancia",    label: "Tolerância",                   tipo: "text", obrigatorio: false },
     { id: "convidados",    label: "Nº estimado de convidados",    tipo: "text", obrigatorio: true },
-    { id: "chegada",       label: "Horário de chegada da equipe", tipo: "text", obrigatorio: true },
+    { id: "chegada",       label: "Horário de chegada da equipe", tipo: "hora", obrigatorio: true },
     { id: "antecedencia",  label: "Antecedência de preparação",   tipo: "text", obrigatorio: false },
     { id: "garcons",       label: "Qtd. de garçons",              tipo: "text", obrigatorio: false },
     { id: "cozinheiras",   label: "Qtd. de cozinheiras",          tipo: "text", obrigatorio: false },
@@ -184,10 +184,10 @@ window.MODELO_PADRAO = {
       id: "c19",
       titulo: "CLÁUSULA 19ª – DO FORO",
       texto:
-        "Fica eleito o foro da Comarca de {{cidade}}/MG para dirimir quaisquer dúvidas ou litígios decorrentes deste contrato.\n\n\n" +
-        "{{cidade}}, {{data_entrada}}.\n\n\n" +
+        "Fica eleito o foro da Comarca de {{cidade}}/MG para dirimir quaisquer dúvidas ou litígios decorrentes deste contrato.\n\n" +
+        "{{cidade}}, {{data_entrada}}.\n\n" +
         "_______________________________________\n" +
-        "Nome e assinatura do Contratado (D'Luh Festas)\n\n\n" +
+        "Nome e assinatura do Contratado (D'Luh Festas)\n\n" +
         "_______________________________________\n" +
         "Assinatura do Contratante"
     },
