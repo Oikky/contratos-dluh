@@ -184,12 +184,7 @@ window.MODELO_PADRAO = {
       id: "c19",
       titulo: "CLÁUSULA 19ª – DO FORO",
       texto:
-        "Fica eleito o foro da Comarca de {{cidade}}/MG para dirimir quaisquer dúvidas ou litígios decorrentes deste contrato.\n\n" +
-        "{{cidade}}, {{data_entrada}}.\n\n" +
-        "_______________________________________\n" +
-        "Nome e assinatura do Contratado (D'Luh Festas)\n\n" +
-        "_______________________________________\n" +
-        "Assinatura do Contratante"
+        "Fica eleito o foro da Comarca de {{cidade}}/MG para dirimir quaisquer dúvidas ou litígios decorrentes deste contrato."
     },
   ],
 };
